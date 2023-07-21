@@ -1,0 +1,96 @@
+from typing import Tuple
+
+from requests import Session
+
+from . import static
+
+
+def filter(
+    _session: Session,
+    gateway_phoenix_url: str,
+    filter_obj: dict,
+    ks_token: str,
+    page_idx: int = 1,
+    **kwargs,
+) -> Tuple[list, int]:
+    """
+    Calls the list ep with a provided filter object.
+
+    :param _session: requests.Session object
+    :param gateway_phoenix_url: The gateway phoenix url
+    :param filter_obj: The filter object
+    :param ks_token: The ks token
+    :param page_idx: The page index
+    :param kwargs: Optional arguments (ie. response_profile: dict, page_size: int = 500)
+    :return: A tuple containing the list of media items and the total number of items
+    """
+    api_version = kwargs.get("api_version", static.api_version)
+    page_size = kwargs.get("page_size", 500)
+    data = {
+        "ks": ks_token,
+        "filter": filter_obj,
+        "pager": {
+            "objectType": f"{static.get_ott_platform_name()}FilterPager",
+            "pageSize": page_size,
+            "pageIndex": page_idx,
+        },
+        "apiVersion": api_version,
+    }
+    response_profile = kwargs.get("response_profile")
+    if response_profile:
+        data["responseProfile"] = response_profile
+    response = _session.post(
+        f"{gateway_phoenix_url}/asset/action/list",
+        json=data,
+    )
+    response.raise_for_status()
+    total_count = response.json().get("result", {}).get("totalCount", 0)
+    if total_count == 0:
+        return [], 0
+    return response.json()["result"]["objects"], total_count
+
+
+def get_channel_list(
+    _session: Session, gateway_phoenix_url: str, ks_token: str, **kwargs
+) -> list:
+    """
+    Fetches the live channel list from the API
+
+    :param _session: requests.Session object
+    :param gateway_phoenix_url: The gateway phoenix url
+    :param ks_token: The ks token
+    :param kwargs: Optional arguments
+    :return: A list of channels
+    """
+
+    filter_obj = {
+        "kSql": f"(and asset_type='{static.channel_type}')",
+        "idEqual": static.channel_id,
+        "objectType": f"{static.get_ott_platform_name()}ChannelFilter",
+    }
+    response_profile = {
+        "objectType": f"{static.get_ott_platform_name()}DetachedResponseProfile",
+        "name": f"{static.get_ott_platform_name()}AssetImagePerRatioFilter",
+        "filter": {
+            "objectType": f"{static.get_ott_platform_name()}AssetImagePerRatioFilter",
+        },
+    }
+    # request all channels in 50 per page chunks
+    objects = []
+    page_idx = 1
+    while True:
+        result, total_count = filter(
+            _session,
+            gateway_phoenix_url,
+            filter_obj,
+            ks_token,
+            page_idx,
+            response_profile=response_profile,
+            page_size=50,
+            **kwargs,
+        )
+        objects.extend(result)
+        if len(objects) >= total_count:
+            break
+        page_idx += 1
+    return objects

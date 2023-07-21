@@ -1,0 +1,263 @@
+<?xml version="1.0" ?>
+<settings version="1">
+	<section id="plugin.video.vodkatv">
+        <category id="general" label="30001">
+            <group id="1" label="30001">
+                <setting id="username" label="30003" type="string">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+		                <heading>30003</heading>
+                    </control>
+                </setting>
+                <setting id="password" label="30004" type="string">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30004</heading>
+                        <hidden>true</hidden>
+                    </control>
+                </setting>
+                <setting id="devicenick" label="30005" type="string">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30005</heading>
+                    </control>
+                </setting>
+            </group>
+            <group id="4" label="30046">
+                <setting id="drmsystem" type="integer" label="30047" help="">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30048">0</option>
+                            <option label="30049">1</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string" />
+                </setting>
+            </group>
+        </category>
+        <category id="advanced" label="30006">
+            <group id="2" label="30007">
+                <setting id="useragent" label="30008" type="string">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30008</heading>
+                    </control>
+                </setting>
+            </group>
+            <group id="3" label="30009">
+                <setting id="showtokens" label="30010" type="boolean">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="devicekey" label="30011" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30011</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="kstoken" label="30012" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30012</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="ksexpiry" label="30013" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30013</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="ksrefreshtoken" label="30014" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30014</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="ksrefreshexpiry" label="30015" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30015</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="jsonpostgw" label="30017" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30017</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="phoenixgw" label="30029" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30029</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="licenseurlbase" label="30033" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30033</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="tenantid" label="30034" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30034</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="apiuser" label="30018" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30018</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="apipass" label="30019" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30019</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="domainid" label="30020" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30020</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="siteguid" label="30021" type="string">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <default></default>
+                    <dependencies>
+                        <dependency type="visible" setting="showtokens">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30021</heading>
+                    </control>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="isfirstrun" label="30051" type="boolean">
+                    <level>0</level>
+                    <enable>false</enable>
+                    <visible>false</visible>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+        </category>
+    </section>
+</settings>

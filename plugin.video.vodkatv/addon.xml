@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.vodkatv" name="VodkaTV" version="0.7.1" provider-name="Octo Potato">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.12.4"/>
+        <import addon="script.module.inputstreamhelper" version="0.3.3"/>
+        <import addon="script.module.pycryptodome" version="3.4.3"/>
+        <import addon="script.module.xmltodict" version="0.12.0"/>
+
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.service" library="playback_mgr_service.py"/>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">VodkaTV</summary>
+        <description lang="en">Unofficial Vodafone TV Hungary Kodi Addon</description>
+        <disclaimer lang="en">This addon is not created or maintained by Vodafone Hungary</disclaimer>
+        <summary lang="hu">VodkaTV</summary>
+        <description lang="hu">[B]Vod[/B] [B]K[/B]orlátlanul, OTT ahol [B]A[/B]karod.[CR][CR]Nyomokban alkoholt tartalmazhat. Fogyasztása csak felnőtt felügyelete mellett ajánlott.</description>
+        <disclaimer lang="hu">Ez a kiegészítő nem hivatalos, és nem a Vodafone Magyarország készítette</disclaimer>
+        <platform>all</platform>
+        <language>hu en</language>
+        <license>GPLv2</license>
+        <forum>https://prohardver.hu/tema/kodi_xbmc_kiegeszito_magyar_nyelvu_online_filmekhe/hsz_1-50.html</forum>
+        <website></website>
+        <email></email>
+        <source>https://github.com/movieshark/VodkaTV</source>
+        <assets>
+            <icon>resources/media/logo.png</icon>
+            <fanart></fanart>
+        </assets>
+        <news></news>
+    </extension>
+</addon>

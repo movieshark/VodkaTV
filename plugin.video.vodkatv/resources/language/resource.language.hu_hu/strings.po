@@ -1,0 +1,255 @@
+# Kodi Media Center language file
+# Addon Name: VodkaTV
+# Addon id: plugin.video.vodkatv
+# Addon Provider: Octo Potato
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.video.vodkatv\n"
+"Report-Msgid-Bugs-To: https://github.com/movieshark/vodkatv\n"
+"POT-Creation-Date: 2023-07-04 16:15+0000\n"
+"PO-Revision-Date: 2023-07-12 14:13+0200\n"
+"Last-Translator: Octo Potato\n"
+"Language-Team: Hungarian\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30001"
+msgid "General"
+msgstr "Általános"
+
+msgctxt "#30002"
+msgid "Account"
+msgstr "Fiók"
+
+msgctxt "#30003"
+msgid "Username"
+msgstr "Felhasználónév"
+
+msgctxt "#30004"
+msgid "Password"
+msgstr "Jelszó"
+
+msgctxt "#30005"
+msgid "Device nick"
+msgstr "Eszköz beceneve"
+
+msgctxt "#30006"
+msgid "Advanced"
+msgstr "Haladó"
+
+msgctxt "#30007"
+msgid "Request details"
+msgstr "Kérés részletei"
+
+msgctxt "#30008"
+msgid "User agent"
+msgstr ""
+
+msgctxt "#30009"
+msgid "Read-only data"
+msgstr "Csak olvasható adatok"
+
+msgctxt "#30010"
+msgid "Display tokens?"
+msgstr "Tokenek megjelenítése?"
+
+msgctxt "#30011"
+msgid "Device's unique ID"
+msgstr "Eszköz egyedi azonosítója"
+
+msgctxt "#30012"
+msgid "KS Token"
+msgstr ""
+
+msgctxt "#30013"
+msgid "KS Token Expiry"
+msgstr "KS token lejárata"
+
+msgctxt "#30014"
+msgid "KS Refresh Token"
+msgstr "KS frissítő token"
+
+msgctxt "#30015"
+msgid "KS Refresh Token Expiry"
+msgstr "KS frissítő token lejárata"
+
+msgctxt "#30016"
+msgid "Refreshing KS token..."
+msgstr "KS token frissítése..."
+
+msgctxt "#30017"
+msgid "JSON Post Gateway URL"
+msgstr ""
+
+msgctxt "#30018"
+msgid "API username"
+msgstr "API felhasználónév"
+
+msgctxt "#30019"
+msgid "API password"
+msgstr "API jelszó"
+
+msgctxt "#30020"
+msgid "Domain ID"
+msgstr "Domain azonosító"
+
+msgctxt "#30021"
+msgid "Site GUID"
+msgstr "Oldal GUID"
+
+msgctxt "#30022"
+msgid "Fetching site config..."
+msgstr "Oldal konfigurációjának lekérése..."
+
+msgctxt "#30023"
+msgid "Logging in..."
+msgstr "Bejelentkezés..."
+
+msgctxt "#30024"
+msgid "Registering the device..."
+msgstr "Eszköz regisztrálása..."
+
+msgctxt "#30025"
+msgid "The following error occurred: {message}"
+msgstr "A következő hiba történt: {message}"
+
+msgctxt "#30026"
+msgid "Successful login and device registration!"
+msgstr "Sikeres bejelentkezés és eszköz regisztráció!"
+
+msgctxt "#30027"
+msgid "Channels"
+msgstr "Csatornák"
+
+msgctxt "#30028"
+msgid "Please log in first in settings!"
+msgstr "Kérlek először jelentkezz be a beállításokban!"
+
+msgctxt "#30029"
+msgid "Phoenix Gateway URL"
+msgstr "Phoenix átjáró URL"
+
+msgctxt "#30030"
+msgid "Item not playable, API didn't return a valid source."
+msgstr "Az média nem játszható le, az API nem adott vissza érvényes forrást."
+
+msgctxt "#30031"
+msgid "Item not playable, API didn't give a CUSTOM DRM source."
+msgstr "Az média nem játszható le, az API nem adott vissza egyedi DRM forrást."
+
+msgctxt "#30032"
+msgid "Item not playable, no DRM auth header found."
+msgstr "Az média nem játszható le, nem található DRM hitelesítési fejléc."
+
+msgctxt "#30033"
+msgid "License Server base URL"
+msgstr "Licenckiszolgáló gyökér URL"
+
+msgctxt "#30034"
+msgid "Tenant ID"
+msgstr ""
+
+msgctxt "#30035"
+msgid "The Cloudflare DNS resolver didn't return a valid IP address for: {url}."
+msgstr "A Cloudflare DNS nem adott vissza érvényes IP címet ehhez: {url}."
+
+msgctxt "#30036"
+msgid "Refresh"
+msgstr "Frissítés"
+
+msgctxt "#30037"
+msgid "this device"
+msgstr "ez az eszköz"
+
+msgctxt "#30038"
+msgid "Delete device"
+msgstr "Eszköz törlése"
+
+msgctxt "#30039"
+msgid "Activated on"
+msgstr "Aktiválva"
+
+msgctxt "#30040"
+msgid "Last used on"
+msgstr "Utolsó használat"
+
+msgctxt "#30041"
+msgid "Household ID"
+msgstr "Háztartási azonosító"
+
+msgctxt "#30042"
+msgid "State"
+msgstr "Állapot"
+
+msgctxt "#30043"
+msgid "Device List"
+msgstr "Eszközök listája"
+
+msgctxt "#30044"
+msgid "Are you absolutely sure you want to delete this device?"
+"[CR][B]This action cannot be undone![/B]"
+msgstr "Biztos vagy benne, hogy törölni szeretnéd ezt az eszközt?"
+"[CR][B]Ez a művelet nem vonható vissza![/B]"
+
+msgctxt "#30045"
+msgid "Device deleted!"
+msgstr "Eszköz törölve!"
+
+msgctxt "#30046"
+msgid "DRM"
+msgstr "DRM"
+
+msgctxt "#30047"
+msgid "DRM System"
+msgstr "DRM rendszer"
+
+msgctxt "#30048"
+msgid "Widevine (default and recommended)"
+msgstr "Widevine (alapértelmezett és ajánlott)"
+
+msgctxt "#30049"
+msgid "PlayReady (only on certain Android TVs)"
+msgstr "PlayReady (csak néhány Android TV-n)"
+
+msgctxt "#30050"
+msgid "Widevine was selected as the DRM system, but InputStream"
+" Helper couldn't install a valid CDM. Can't continue."
+msgstr "Widevine lett kiválasztva DRM rendszerként, de az InputStream"
+" Helper nem tudott érvényes CDM-et telepíteni. Így most kilépünk."
+
+msgctxt "#30051"
+msgid "First run?"
+msgstr "Első futás?"
+
+msgctxt "#30052"
+msgid "The completion of the add-on was made possible by the generous people who offered their accounts (tompi and vargalex - thanks!) and weeks of research work. Therefore, please [B]read the following carefully[/B]! If something is unclear, this text can be accessed at any time from the 'About' section in the add-on's main menu. Also, feel free to ask questions on the forum. ;)\n"
+"\n"
+"1. By logging into the add-on, you automatically accept the Terms and Conditions of the underlying platform and agree to abide by them. This add-on was created independently of the mentioned platform for the purpose of studying it. I do not recommend its use to anyone, and I am not taking any responsibility for any potential damage!\n"
+"2. The add-on works only on a certain subset of devices such as Windows with the latest ChromeCDM, Android or Android TV with L1 certificates and certain Android TVs that support PlayReady with an SL3000 certificate. In case of Widevine  it requires the latest Widevine CDM and in both Widevine and Playready's case the  inputstream.adaptive add-on to function properly at the time of release. The add-on will make every effort to verify and install these components if necessary. However, resolving any resulting errors (such as playback not starting) is the user's responsibility.\n"
+"3. [B]The add-on is in its early alpha stage. Currently the login flow and the live channel listing & playback is implemented.[/B] It's only purpose was studying the platform. Many of the code comes from the notyet add-on. By using this you may get banned temporarily or permanently. Again, I am not responsible. Rate limits are unknown as of now.\n"
+"4. The add-on relies on the goodwill of the user. Therefore, it may not necessarily provide feedback in case of intentionally providing incorrect data if something goes wrong. The reasons for this are twofold: firstly, it is not possible to prepare for all possibilities as the platform is closed; secondly, handling these cases would significantly slow down the user experience. I kindly ask everyone to provide meaningful data.\n"
+"5. The advanced settings of the add-on do not need to be modified by default, and it is not recommended to do so. Please only make changes if you have a good reason and are confident in the correctness of the modification, or if recommended by the developer. A good example of this is when a new version appears in the application but no add-on update is available with the new version number. In such cases, you can override it.\n"
+"6. Most of the add-on's settings take effect after restarting Kodi or disabling and re-enabling the add-on. I recommend doing this after every change. The only exception is the 'device name' setting, which takes effect only after deleting the device identifier and re-logging.\n"
+"7. The add-on supports both Hungarian and English languages. If Kodi starts in English, the add-on will also be in English. I welcome translations into other languages (if you see the need).\n"
+"8. The add-on is not prepared for the scenario where you are logged out of the platform or another registered device on the platform logs you out due to reasons beyond your control. In such cases, it may encounter errors. Please make sure that your subscription is active, the official applications are working, and you have not exceeded the allowed device limit before reporting an error. It is recommended to delete cached login data, and if that doesn't solve the issue, reinstall the add-on, which attempts to log in again and re-register the device.\n"
+"\n"
+"Thank you for reading, and enjoy!"
+msgstr "A kiegészítő elkészültét a fiókjukat felajánló nagylelkű emberek (tompi és vargalex - köszönöm nekik!) és a hetekig tartó kutatómunka tette lehetővé. Ezért kérlek [B]olvasd el figyelmesen a következőket[/B]! Ha valami nem világos, ez a szöveg bármikor elérhető a bővítmény főmenüjének 'Névjegy' részéből. Illetve kérdezz bátran a fórumon! ;)\n"
+"\n"
+"1. A kiegészítőbe való bejelentkezéssel automatikusan elfogadod a kiegészítő alapjait kiszolgáló platform ÁSZF-jét, és beleegyezel azok betartásába. Ez a bővítmény az említett platformtól függetlenül készült, tanulás céljából. Használatát senkinek nem ajánlom, az esetleges károkért felelősséget nem vállalok!\n"
+"2. A bővítmény csak bizonyos eszközökön működik, például Windowson a legújabb ChromeCDM-mel, Androidon, vagy Android TV-n, ahol van L1-tanúsítvány; és bizonyos Android TV-ken, amelyek támogatják a PlayReady-t SL3000 tanúsítvánnyal. Widevine esetén a legújabb Widevine CDM-re van szükség, és Widevine és Playready esetében is az inputstream.adaptive telepítése fontos lépés. Ezek meglétével működött a lejátszás a kiadás pillanatában. A DRM-mel kapcsolatos hibák (például a lejátszás nem indul el) megoldása a felhasználó felelőssége.\n"
+"3. [B]A bővítmény a korai 'alpha' fázisban van. Jelenleg a bejelentkezési folyamat, valamint az élő csatornák listázása és lejátszása van megvalósítva.[/B] A fejlesztés egyetlen célja a platform tanulmányozása volt. A kód nagy része a notyet bővítményből származik. A kiegészítő használatával ideiglenesen vagy véglegesen kitilthatják a fiókod. Ismételten: nem vállalok felelősséget. A rate limitek egyelőre számomra ismeretlenek."
+"4. A bővítmény a felhasználó jóindulatára támaszkodik. Ezért nem feltétlenül ad visszajelzést, ha valami elromlik szándékosan hibás adatok megadása esetén. Ennek kettős okai vannak: egyrészt nem lehet minden lehetőségre felkészülni, mivel a platform zárt, másrészt az esetek kezelése jelentősen lelassítaná a felhasználói élményt. Kérek mindenkit, hogy értelmes adatokat adjon meg.\n"
+"5. A bővítmény haladó beállításait alapértelmezés szerint nem kell módosítani. Nem is javasolt. Kérlek csak akkor végezz változtatásokat, ha arra alapos okod van, és meggyőződtél módosítás helyességéről, vagy ha a fejlesztő azt javasolja. Egy példa erre, ha új verzió jelenik meg az alkalmazásból, de nem jelenik meg azonnal kiegészítő frissítés, ami tartalmazná ezt az új új verziószámot. Ilyen esetekben rendben van a változtatás."
+"6. A bővítmény legtöbb beállítása a Kodi újraindítása vagy a kiegészítő letiltása és újbóli engedélyezése után lép életbe. Ezt minden változtatás után javaslom. Az egyetlen kivétel az eszköz becenevének beállítása, amely csak az eszközazonosító törlése és az újbóli bejelentkezés után lép életbe.\n"
+"7. A kiegészítő támogatja a magyar és az angol nyelvet is. Ha a Kodi angolul indul, akkor a kiegészítő is angol lesz. Szívesen veszem a fordításokat más nyelvekre is (ha van értelme).\n"
+"8. A bővítmény nincs felkészítve arra az eshetőségre, ha kijelentkezel a platformról, vagy a platformon egy másik regisztrált eszköz rajtad kívülálló okok miatt kijelentkeztet. Ilyen esetekben hibák léphetnek fel. Ez esetben győződj meg róla, hogy az előfizetésed aktív, a hivatalos alkalmazások működnek, és nem-e lépted túl a megengedett eszközkorlátot, mielőtt hibajelzést küldenél! Ilyen esetekben javaslom, hogy léptesd ki az eszközt és telepítsd újra a kiegészítőt.\n"
+"\n"
+"Köszönöm, hogy elolvastad, és jó szórakozást!"
+
+msgctxt "#30053"
+msgid "About"
+msgstr "Névjegy"
