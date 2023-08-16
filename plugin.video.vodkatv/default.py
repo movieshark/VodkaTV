@@ -487,25 +487,24 @@ def play(session: Session, media_id: int, asset_file_id: int) -> None:
         return
     # construct 'trailer' parameters for playback manager
     trailer_params = _gen_mgr_params(playback_obj)
-    manifest_url = playback_obj.get("url")
+    manifest_url = urlparse(playback_obj.get("url"))
     # extract host from domain
-    hostname = urlparse(manifest_url).hostname
+    hostname = manifest_url.hostname
     ip = resolve_domain(hostname)
     if not ip:
         xbmcgui.Dialog().ok(
             addon_name,
-            addon.getLocalizedString(30035).format(url=manifest_url),
+            addon.getLocalizedString(30035).format(url=manifest_url.geturl()),
         )
         return
-    # replace hostname with IP
-    manifest_url = manifest_url.replace(hostname, ip)
+    # replace hostname with IP and specify port 80
+    manifest_url = manifest_url._replace(netloc=f"{ip}:80")
     # replace https with http
-    manifest_url = manifest_url.replace("https://", "http://")
+    manifest_url = manifest_url._replace(scheme="http")
     response = session.head(
-        manifest_url, allow_redirects=False, headers={"Host": hostname}
+        manifest_url.geturl(), allow_redirects=False, headers={"Host": hostname}
     )
     manifest_url = response.headers.get("Location")
-    # get DRM type; 0 is widevine, 1 is playready
     drm_system = addon.getSettingInt("drmsystem")
     # construct playback item
     is_helper = inputstreamhelper.Helper("mpd", drm="com.widevine.alpha")
@@ -519,7 +518,7 @@ def play(session: Session, media_id: int, asset_file_id: int) -> None:
         "inputstream.adaptive.manifest_headers",
         urlencode({"User-Agent": addon.getSetting("useragent")}),
     )
-    if drm_system == 0:
+    if drm_system == 0:  # Widevine
         if not is_helper.check_inputstream():
             xbmcgui.Dialog().ok(
                 addon_name,
@@ -533,7 +532,7 @@ def play(session: Session, media_id: int, asset_file_id: int) -> None:
         }
         license_url = f"{addon.getSetting('licenseurlbase')}/{addon.getSetting('tenantid')}/wvls/contentlicenseservice/v1/licenses|{urlencode(license_headers)}|R{{SSM}}|"
         play_item.setProperty("inputstream.adaptive.license_type", "com.widevine.alpha")
-    elif drm_system == 1:
+    elif drm_system == 1:  # PlayReady
         license_headers = {
             "User-Agent": addon.getSetting("useragent"),
             "Content-Type": "text/xml",
