@@ -321,6 +321,41 @@ def main_menu() -> None:
     xbmcplugin.endOfDirectory(int(argv[1]))
 
 
+def get_available_files(session: Session, file_ids: list) -> list:
+    """
+    Get the list of available file IDs.
+
+    :param session: The requests session.
+    :param file_ids: The list of file IDs.
+    :return: The list of available file IDs.
+    """
+    # split the list of channels into chunks of 100 in the for loop
+    # to avoid sending too many requests at once
+    available_channels = []
+    for i in range(0, len(file_ids), 100):
+        # NOTE: original app does this in chunks of 10
+        # but that seems to be too slow, so we do it in chunks of 100
+        chunk = file_ids[i : min(i + 100, len(file_ids))]
+        response = media_list.product_price_list(
+            session,
+            addon.getSetting("phoenixgw"),
+            chunk,
+            addon.getSetting("kstoken"),
+        )
+        for product in response:
+            # NOTE: values here are only guesses
+            if product.get("purchaseStatus") in [
+                "subscription_purchased",
+                "free",
+                "ppv_purchased",
+                "collection_purchased",
+                "pre_paid_purchased",
+                "subscription_purchased_wrong_currency",
+            ]:
+                available_channels.append(product.get("fileId"))
+    return available_channels
+
+
 def channel_list(session: Session) -> None:
     """
     Renders the list of live channels.
@@ -344,6 +379,21 @@ def channel_list(session: Session) -> None:
             )
         )
     )
+    available_file_ids = []
+    for channel in channels:
+        media_files = [
+            media_file
+            for media_file in channel.get("mediaFiles")
+            if media_file.get("type") in static.media_file_ids
+        ]
+        # sort media files that contain 'HD' earlier
+        media_files.sort(key=lambda x: x.get("type").lower().find("hd"), reverse=True)
+        if not media_files:
+            continue
+        media_file = media_files[0]["id"]
+        available_file_ids.append(str(media_file))
+    # check which channels are available
+    available_file_ids = get_available_files(session, available_file_ids)
     # TODO: get API version
     for channel in channels:
         channel_id = channel.get("id")
@@ -362,6 +412,7 @@ def channel_list(session: Session) -> None:
             media_file
             for media_file in channel.get("mediaFiles")
             if media_file.get("type") in static.media_file_ids
+            and media_file.get("id") in available_file_ids
         ]
         # sort media files that contain 'HD' earlier
         media_files.sort(key=lambda x: x.get("type").lower().find("hd"), reverse=True)

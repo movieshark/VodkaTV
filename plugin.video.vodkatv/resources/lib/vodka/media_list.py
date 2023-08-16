@@ -94,3 +94,34 @@ def get_channel_list(
             break
         page_idx += 1
     return objects
+
+
+def product_price_list(
+    _session: Session, gateway_phoenix_url: str, file_ids: list, ks_token: str, **kwargs
+):
+    """
+    Fetches the product price list from the API.
+    Used to check whether the user has access to a particular item.
+
+    :param _session: requests.Session object
+    :param gateway_phoenix_url: The gateway phoenix url
+    :param file_ids: The list of file ids
+    :param ks_token: The ks token
+    :param kwargs: Optional arguments
+    :return: A list of product prices
+    """
+    api_version = kwargs.get("api_version", static.api_version)
+    data = {
+        "ks": ks_token,
+        "filter": {
+            "fileIdIn": ",".join(file_ids),
+            "IsLowest": False,
+        },
+        "apiVersion": api_version,
+    }
+    response = _session.post(
+        f"{gateway_phoenix_url}/productprice/action/list",
+        json=data,
+    )
+    response.raise_for_status()
+    return response.json()["result"]["objects"]
