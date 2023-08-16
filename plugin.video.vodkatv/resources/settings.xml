@@ -49,6 +49,156 @@
                 </setting>
             </group>
         </category>
+        <category id="export" label="30057">
+            <group id="5" label="30058">
+                <setting id="channelexportpath" type="path" label="30059">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="path">
+                        <heading>30059</heading>
+                    </control>
+                </setting>
+            </group>
+            <group id="6" label="30027">
+                <setting id="channelexportname" label="30060" type="string">
+                    <level>0</level>
+                    <default>channels.m3u</default>
+                    <constraints>
+                        <allowempty>false</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30060</heading>
+                    </control>
+                </setting>
+                <setting id="exportchannellist" type="action" label="30061">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://$ID/?action=export_chanlist)</data>
+                    <dependencies>
+                        <dependency type="enable">
+                            <and>
+                                <condition operator="!is" setting="channelexportpath"></condition>
+                                <condition operator="!is" setting="channelexportname"></condition>
+                                <condition operator="!is" setting="kstoken"></condition>
+                            </and>
+                        </dependency>
+                    </dependencies>
+                    <control type="button" format="action">
+                        <close>false</close>
+                    </control>
+                </setting>
+            </group>
+            <group id="7" label="30062">
+                <setting id="autoupdateepg" label="30063" type="boolean">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="epgexportname" label="30064" type="string">
+                    <level>0</level>
+                    <default>epg.xml</default>
+                    <constraints>
+                        <allowempty>false</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30064</heading>
+                    </control>
+                </setting>
+                <setting id="epgfrom" label="30065" type="integer">
+                    <level>0</level>
+                    <default>1</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>7</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <heading>30065</heading>
+                    </control>
+                </setting>
+                <setting id="epgto" label="30066" type="integer">
+                    <level>0</level>
+                    <default>7</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>7</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <heading>30066</heading>
+                    </control>
+                </setting>
+                <!-- epg update freq: 3, 6, 12, 24, 48, 72 hours -->
+                <setting id="epgupdatefreq" type="integer" label="30067">
+                    <level>0</level>
+                    <default>2</default>
+                    <constraints>
+                        <options>
+                            <option label="30068">0</option>
+                            <option label="30069">1</option>
+                            <option label="30070">2</option>
+                            <option label="30071">3</option>
+                            <option label="30072">4</option>
+                            <option label="30073">5</option>
+                        </options>
+                    </constraints>
+                     <control type="spinner" format="string">
+                     </control>
+                </setting>
+                <setting id="epgfetchinonereq" type="integer" label="30077">
+                    <level>0</level>
+                    <default>30</default>
+                    <constraints>
+                        <options>
+                            <option label="30078">1</option>
+                            <option label="30079">10</option>
+                            <option label="30080">20</option>
+                            <option label="30081">30</option>
+                        </options>
+                    </constraints>
+                     <control type="spinner" format="string">
+                     </control>
+                </setting>
+                <setting id="epgfetchtries" type="integer" label="30075">
+                    <level>0</level>
+                    <default>3</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>10</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <heading>30102</heading>
+                    </control>
+                </setting>
+                <setting id="epgnotifoncompletion" label="30076" type="boolean">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="exportepg" type="action" label="30074">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://$ID/?action=export_epg)</data>
+                    <dependencies>
+                        <dependency type="enable">
+                            <and>
+                            <condition operator="!is" setting="channelexportpath"></condition>
+                                <condition operator="!is" setting="epgexportname"></condition>
+                                <condition operator="!is" setting="epgfrom"></condition>
+                                <condition operator="!is" setting="epgto"></condition>
+                                <condition operator="!is" setting="epgupdatefreq"></condition>
+                                <condition operator="!is" setting="kstoken"></condition>
+                            </and>
+                        </dependency>
+                    </dependencies>
+                    <control type="button" format="action">
+                        <close>false</close>
+                    </control>
+                </setting>
+            </group>
+        </category>
         <category id="advanced" label="30006">
             <group id="2" label="30007">
                 <setting id="useragent" label="30008" type="string">

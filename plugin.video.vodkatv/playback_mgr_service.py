@@ -5,16 +5,12 @@ from urllib.parse import parse_qsl
 import requests
 import xbmc
 import xbmcaddon
+from export_data import main_service
 from resources.lib.vodka import static
 
-# script responsible for monitoring playback and
-# doing keepalive requests if the playback is from plugin.video.vodkatv
-# and the media playback is paused
-# once the playback is stopped, also sends a teardown request
-
-handle = "[VodkaTV]"
 timeout = 5
 addon = xbmcaddon.Addon()
+handle = f"[{addon.getAddonInfo('name')}]"
 
 xbmc.log(f"{handle} Playback Manager Service started", xbmc.LOGINFO)
 
@@ -209,6 +205,7 @@ class XBMCPlayer(xbmc.Player):
 if __name__ == "__main__":
     monitor = xbmc.Monitor()
     player = XBMCPlayer()
+    main_service()
     while not monitor.abortRequested():
         if monitor.waitForAbort(1):
             break

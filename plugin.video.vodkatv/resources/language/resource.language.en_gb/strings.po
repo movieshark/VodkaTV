@@ -240,3 +240,129 @@ msgstr ""
 msgctxt "#30053"
 msgid "About"
 msgstr ""
+
+msgctxt "#30054"
+msgid ""
+"Couldn't export the channel list.\n"
+"Invalid path or name?"
+msgstr ""
+
+msgctxt "#30055"
+msgid "Login first!"
+msgstr ""
+
+msgctxt "#30056"
+msgid "Successfully exported the channel list!"
+msgstr ""
+
+msgctxt "#30057"
+msgid "Export"
+msgstr ""
+
+msgctxt "#30058"
+msgid "Path"
+msgstr ""
+
+msgctxt "#30059"
+msgid "Channel list path"
+msgstr ""
+
+msgctxt "#30060"
+msgid "Channel list name"
+msgstr ""
+
+msgctxt "#30061"
+msgid "Export channel list"
+msgstr ""
+
+msgctxt "#30062"
+msgid "EPG"
+msgstr ""
+
+msgctxt "#30063"
+msgid "Auto update EPG"
+msgstr ""
+
+msgctxt "#30064"
+msgid "EPG file name"
+msgstr ""
+
+msgctxt "#30065"
+msgid "Request EPG from (days)"
+msgstr ""
+
+msgctxt "#30066"
+msgid "Request EPG to (days)"
+msgstr ""
+
+msgctxt "#30067"
+msgid "EPG update frequency"
+msgstr ""
+
+msgctxt "#30068"
+msgid "3 hours"
+msgstr ""
+
+msgctxt "#30069"
+msgid "6 hours"
+msgstr ""
+
+msgctxt "#30070"
+msgid "12 hours"
+msgstr ""
+
+msgctxt "#30071"
+msgid "24 hours"
+msgstr ""
+
+msgctxt "#30072"
+msgid "48 hours"
+msgstr ""
+
+msgctxt "#30073"
+msgid "72 hours"
+msgstr ""
+
+msgctxt "#30074"
+msgid "Export EPG"
+msgstr ""
+
+msgctxt "#30075"
+msgid "Give up after (tries)"
+msgstr ""
+
+msgctxt "#30076"
+msgid "Notification on EPG fetch completion"
+msgstr ""
+
+msgctxt "#30077"
+msgid "Amount of channels to fetch at once"
+msgstr ""
+
+msgctxt "#30078"
+msgid "1 channel"
+msgstr """
+
+msgctxt "#30079"
+msgid "10 channels"
+msgstr ""
+
+msgctxt "#30080"
+msgid "20 channels"
+msgstr ""
+
+msgctxt "#30081"
+msgid "30 channels (default)"
+msgstr ""
+
+msgctxt "#30082"
+msgid "EPG export successful!"
+msgstr ""
+
+msgctxt "#30083"
+msgid "EPG update interval is not set."
+msgstr ""
+
+msgctxt "#30084"
+msgid "EPG update"
+msgstr ""

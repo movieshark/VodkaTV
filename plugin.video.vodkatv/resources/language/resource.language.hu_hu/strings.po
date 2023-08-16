@@ -134,15 +134,15 @@ msgstr "Phoenix átjáró URL"
 
 msgctxt "#30030"
 msgid "Item not playable, API didn't return a valid source."
-msgstr "Az média nem játszható le, az API nem adott vissza érvényes forrást."
+msgstr "A média nem játszható le, az API nem adott vissza érvényes forrást."
 
 msgctxt "#30031"
 msgid "Item not playable, API didn't give a CUSTOM DRM source."
-msgstr "Az média nem játszható le, az API nem adott vissza egyedi DRM forrást."
+msgstr "A média nem játszható le, az API nem adott vissza egyedi DRM forrást."
 
 msgctxt "#30032"
 msgid "Item not playable, no DRM auth header found."
-msgstr "Az média nem játszható le, nem található DRM hitelesítési fejléc."
+msgstr "A média nem játszható le, nem található DRM hitelesítési fejléc."
 
 msgctxt "#30033"
 msgid "License Server base URL"
@@ -253,3 +253,131 @@ msgstr "A kiegészítő elkészültét a fiókjukat felajánló nagylelkű ember
 msgctxt "#30053"
 msgid "About"
 msgstr "Névjegy"
+
+msgctxt "#30054"
+msgid ""
+"Couldn't export the channel list.\n"
+"Invalid path or name?"
+msgstr ""
+"Nem sikerült exportálni a csatornalistát.\n"
+"Érvénytelen útvonal vagy név?"
+
+msgctxt "#30055"
+msgid "Login first!"
+msgstr "Először jelentkezz be!"
+
+msgctxt "#30056"
+msgid "Successfully exported the channel list!"
+msgstr "Sikeres csatornaexportálás!"
+
+msgctxt "#30057"
+msgid "Export"
+msgstr "Exportálás"
+
+msgctxt "#30058"
+msgid "Path"
+msgstr "Elérési útvonal"
+
+msgctxt "#30059"
+msgid "Channel list path"
+msgstr "Csatornalista útvonala"
+
+msgctxt "#30060"
+msgid "Channel list name"
+msgstr "Csatornalista neve"
+
+msgctxt "#30061"
+msgid "Export channel list"
+msgstr "Csatornalista exportálása"
+
+msgctxt "#30062"
+msgid "EPG"
+msgstr ""
+
+msgctxt "#30063"
+msgid "Auto update EPG"
+msgstr "EPG automatikus frissítése"
+
+msgctxt "#30064"
+msgid "EPG file name"
+msgstr "EPG fájl neve"
+
+msgctxt "#30065"
+msgid "Request EPG from (days)"
+msgstr "EPG lekérése ettől a naptól"
+
+msgctxt "#30066"
+msgid "Request EPG to (days)"
+msgstr "EPG lekérése eddig a napig"
+
+msgctxt "#30067"
+msgid "EPG update frequency"
+msgstr "EPG frissítési gyakorisága"
+
+msgctxt "#30068"
+msgid "3 hours"
+msgstr "3 óra"
+
+msgctxt "#30069"
+msgid "6 hours"
+msgstr "6 óra"
+
+msgctxt "#30070"
+msgid "12 hours"
+msgstr "12 óra"
+
+msgctxt "#30071"
+msgid "24 hours"
+msgstr "24 óra"
+
+msgctxt "#30072"
+msgid "48 hours"
+msgstr "48 óra"
+
+msgctxt "#30073"
+msgid "72 hours"
+msgstr "72 óra"
+
+msgctxt "#30074"
+msgid "Export EPG"
+msgstr "EPG exportálása"
+
+msgctxt "#30075"
+msgid "Give up after (tries)"
+msgstr "Próbálkozások száma"
+
+msgctxt "#30076"
+msgid "Notification on EPG fetch completion"
+msgstr "Értesítés az EPG letöltés befejeztekor"
+
+msgctxt "#30077"
+msgid "Amount of channels to fetch at once"
+msgstr "Egyszerre letöltendő csatornák száma"
+
+msgctxt "#30078"
+msgid "1 channel"
+msgstr "1 csatorna"
+
+msgctxt "#30079"
+msgid "10 channels"
+msgstr "10 csatorna"
+
+msgctxt "#30080"
+msgid "20 channels"
+msgstr "20 csatorna"
+
+msgctxt "#30081"
+msgid "30 channels (default)"
+msgstr "30 csatorna (alapértelmezett)"
+
+msgctxt "#30082"
+msgid "EPG export successful!"
+msgstr "EPG exportálás sikeres!"
+
+msgctxt "#30083"
+msgid "EPG update interval is not set."
+msgstr "Nem indult el az EPG frissítés, mert nincs beállítva az időintervallum."
+
+msgctxt "#30084"
+msgid "EPG update"
+msgstr "EPG frissítés"

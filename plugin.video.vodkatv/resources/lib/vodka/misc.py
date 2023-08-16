@@ -30,7 +30,7 @@ def construct_init_obj(**kwargs) -> dict:
     token = kwargs.get("token", "")
     ud_id = kwargs.get("ud_id", "")
 
-    return {
+    init_obj = {
         "ApiUser": api_user,
         "ApiPass": api_pass,
         "DomainID": domain_id,
@@ -42,9 +42,11 @@ def construct_init_obj(**kwargs) -> dict:
             "LocaleUserState": locale_user_state,
         },
         "Platform": platform,
-        "Token": token,
         "UDID": ud_id,
     }
+    if token:
+        init_obj["Token"] = token
+    return init_obj
 
 
 def encrypt_password(password: str, public_key: str) -> str:

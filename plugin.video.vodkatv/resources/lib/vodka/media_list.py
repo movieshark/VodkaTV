@@ -3,6 +3,7 @@ from typing import Tuple
 from requests import Session
 
 from . import static
+from .misc import construct_init_obj
 
 
 def filter(
@@ -125,3 +126,42 @@ def product_price_list(
     )
     response.raise_for_status()
     return response.json()["result"]["objects"]
+
+
+def get_epg_by_channel_ids(
+    _session: Session,
+    json_post_gw: str,
+    channel_ids: list,
+    from_offset: int,
+    to_offset: int,
+    utc_offset: int,
+    **kwargs,
+) -> list:
+    """
+    Fetches the epg for a list of channels
+
+    :param _session: requests.Session object
+    :param gateway_phoenix_url: The gateway phoenix url
+    :param ks_token: The ks token
+    :param channel_ids: The list of channel ids
+    :param from_offset: The start time offset
+    :param to_offset: The end time offset
+    :param utc_offset: The UTC offset
+    :param kwargs: Optional arguments
+    :return: A list of epg items
+    """
+    data = {
+        "initObj": construct_init_obj(**kwargs),
+        "iFromOffset": from_offset,
+        "iToOffset": to_offset,
+        "iUtcOffset": utc_offset,
+        "oUnit": "Days",
+        "sEPGChannelID": channel_ids,
+        "sPicSize": "full",
+    }
+    response = _session.post(
+        f"{json_post_gw}?m=GetEPGMultiChannelProgram",
+        json=data,
+    )
+    response.raise_for_status()
+    return response.json()

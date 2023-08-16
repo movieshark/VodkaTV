@@ -700,6 +700,33 @@ def delete_device(session: Session, device_id: str) -> None:
         xbmc.executebuiltin("Container.Refresh")
 
 
+def update_epg(_session: Session) -> None:
+    """
+    Update the EPG file manually.
+
+    :param _session: requests session
+    :return: None
+    """
+    # local import should be fine
+    # since it's not used often
+    from export_data import export_epg, get_utc_offset
+
+    # get epg settings
+    from_time = addon.getSetting("epgfrom")
+    to_time = addon.getSetting("epgto")
+    utc_offset = get_utc_offset()
+
+    dialog = xbmcgui.Dialog()
+    if not all([from_time, to_time]):
+        dialog.ok(addon_name, addon.getLocalizedString(30083))
+        return
+    dialog.notification(
+        addon_name,
+        f"{addon.getLocalizedString(30084)}: -{from_time} nap - +{to_time} nap",
+    )
+    export_epg(_session, "-" + from_time, to_time, utc_offset)
+
+
 def about_dialog() -> None:
     """
     Show the about dialog.
@@ -734,13 +761,20 @@ if __name__ == "__main__":
             exit()
         # show main menu
         main_menu()
-    if action == "channel_list":
+    elif action == "channel_list":
         channel_list(session)
-    if action == "play_channel":
+    elif action == "play_channel":
         play(session, params["id"], params["extra"])
-    if action == "device_list":
+    elif action == "device_list":
         device_list(session)
-    if action == "del_device":
+    elif action == "del_device":
         delete_device(session, params.get("device_id"))
-    if action == "about":
+    elif action == "export_chanlist":
+        import export_data
+
+        export_data.export_channel_list(session)
+        exit()
+    elif action == "export_epg":
+        update_epg(session)
+    elif action == "about":
         about_dialog()
