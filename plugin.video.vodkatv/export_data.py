@@ -487,7 +487,7 @@ class EPGUpdaterThread(threading.Thread):
         self.killed.set()
 
 
-def main_service():
+def main_service() -> EPGUpdaterThread:
     """
     Main service loop.
     """
@@ -524,15 +524,7 @@ def main_service():
     )
     epg_updater.start()
     xbmc.log(f"{handle} Export EPG service started", level=xbmc.LOGINFO)
-    while not monitor.abortRequested():
-        if monitor.waitForAbort(1):
-            break
-    epg_updater.stop()
-    try:
-        epg_updater.join()
-    except RuntimeError:
-        pass
-    xbmc.log(f"{handle} Export EPG service stopped", level=xbmc.LOGINFO)
+    return epg_updater
 
 
 if __name__ == "__main__":

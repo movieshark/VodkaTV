@@ -5,7 +5,7 @@ from urllib.parse import parse_qsl
 import requests
 import xbmc
 import xbmcaddon
-from export_data import main_service
+from export_data import main_service as e_main_service
 from resources.lib.vodka import static
 
 timeout = 5
@@ -205,9 +205,15 @@ class XBMCPlayer(xbmc.Player):
 if __name__ == "__main__":
     monitor = xbmc.Monitor()
     player = XBMCPlayer()
-    main_service()
+    export_service = e_main_service()
     while not monitor.abortRequested():
         if monitor.waitForAbort(1):
             break
     player.stop_report_thread()
     xbmc.log(f"{handle} Playback Manager Service stopped", xbmc.LOGINFO)
+    export_service.stop()
+    try:
+        export_service.join()
+    except RuntimeError:
+        pass
+    xbmc.log(f"{handle} Export EPG service stopped", level=xbmc.LOGINFO)
