@@ -312,7 +312,7 @@ def export_epg(
                         for meta in epg_meta
                         if meta.get("Key") == "year"
                     ),
-                    "1970",
+                    None,
                 )
                 episode = next(
                     (
@@ -360,8 +360,9 @@ def export_epg(
                     "@channel": epg_channel_id,
                     "title": {"@lang": "hu", "#text": name},
                     "desc": {"@lang": "hu", "#text": description},
-                    "date": year,
                 }
+                if year:
+                    programme["date"] = year
                 # Prepare categories
                 categories = [{"@lang": "hu", "#text": genre} for genre in genres]
                 if categories:
