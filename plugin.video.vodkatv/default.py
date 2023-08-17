@@ -356,6 +356,20 @@ def get_available_files(session: Session, file_ids: list) -> list:
     return available_channels
 
 
+def replace_image(image_url: str) -> str:
+    image_url = urlparse(image_url)
+    hostname = image_url.hostname
+    scheme = image_url.scheme
+    image_url = image_url._replace(scheme="http")._replace(
+        netloc=f"127.0.0.1:{addon.getSetting('webport')}"
+    )
+    params = {
+        "h": hostname,
+        "s": scheme,
+    }
+    return image_url.geturl() + "?" + urlencode(params)
+
+
 def channel_list(session: Session) -> None:
     """
     Renders the list of live channels.
@@ -407,6 +421,8 @@ def channel_list(session: Session) -> None:
                 (image for image in images if image.get("ratio") == "16:10"),
                 images[0],
             )["url"]
+            if addon.getSettingBool("webenabled"):
+                image = replace_image(image)
         # get media file id
         media_files = [
             media_file

@@ -374,3 +374,23 @@ msgstr ""
 msgctxt "#30086"
 msgid "day"
 msgstr ""
+
+msgctxt "#30087"
+msgid "Web Proxy"
+msgstr ""
+
+msgctxt "#30088"
+msgid "Web Proxy enabled"
+msgstr ""
+
+msgctxt "#30089"
+msgid "Port"
+msgstr ""
+
+msgctxt "#30090"
+msgid "Bind address"
+msgstr ""
+
+msgctxt "#30091"
+msgid "Port {port} already in use, couldn't start the web proxy."
+msgstr ""

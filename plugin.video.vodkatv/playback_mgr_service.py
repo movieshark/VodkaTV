@@ -7,6 +7,7 @@ import xbmc
 import xbmcaddon
 from export_data import main_service as e_main_service
 from resources.lib.vodka import static
+from web_service import main_service as w_main_service
 
 timeout = 5
 addon = xbmcaddon.Addon()
@@ -206,14 +207,23 @@ if __name__ == "__main__":
     monitor = xbmc.Monitor()
     player = XBMCPlayer()
     export_service = e_main_service()
+    web_service = w_main_service()
     while not monitor.abortRequested():
         if monitor.waitForAbort(1):
             break
     player.stop_report_thread()
     xbmc.log(f"{handle} Playback Manager Service stopped", xbmc.LOGINFO)
-    export_service.stop()
-    try:
-        export_service.join()
-    except RuntimeError:
-        pass
-    xbmc.log(f"{handle} Export EPG service stopped", level=xbmc.LOGINFO)
+    if export_service and export_service.is_alive():
+        export_service.stop()
+        try:
+            export_service.join()
+        except RuntimeError:
+            pass
+        xbmc.log(f"{handle} Export EPG service stopped", level=xbmc.LOGINFO)
+    if web_service and web_service.is_alive():
+        web_service.stop()
+        try:
+            web_service.join()
+        except RuntimeError:
+            pass
+        xbmc.log(f"{handle} Web service stopped", level=xbmc.LOGINFO)

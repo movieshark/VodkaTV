@@ -389,3 +389,23 @@ msgstr "Utolsó EPG frissítés"
 msgctxt "#30086"
 msgid "day"
 msgstr "nap"
+
+msgctxt "#30087"
+msgid "Web Proxy"
+msgstr ""
+
+msgctxt "#30088"
+msgid "Web Proxy enabled"
+msgstr "Web Proxy engedélyezve"
+
+msgctxt "#30089"
+msgid "Port"
+msgstr ""
+
+msgctxt "#30090"
+msgid "Bind address"
+msgstr ""
+
+msgctxt "#30091"
+msgid "Port {port} already in use, couldn't start the web proxy."
+msgstr "A {port} port már használatban van, így nem indult el a web proxy."

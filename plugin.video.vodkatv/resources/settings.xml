@@ -199,6 +199,40 @@
                 </setting>
             </group>
         </category>
+        <category id="web" label="30087">
+            <group id="8" label="30087">
+                <setting id="webenabled" label="30088" type="boolean">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="webport" label="30089" type="integer">
+                    <level>0</level>
+                    <default>6789</default>
+                    <constraints>
+                        <minimum>1024</minimum>
+                        <step>1</step>
+                        <maximum>65535</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable" setting="webenabled">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="integer">
+                        <heading>30089</heading>
+                    </control>
+                </setting>
+                <setting id="webaddress" label="30090" type="string">
+                    <level>0</level>
+                    <default>127.0.0.1</default>
+                    <dependencies>
+                        <dependency type="enable" setting="webenabled">true</dependency>
+                    </dependencies>
+                    <control type="edit" format="ip">
+                        <heading>30090</heading>
+                    </control>
+                </setting>
+            </group>
+        </category>
         <category id="advanced" label="30006">
             <group id="2" label="30007">
                 <setting id="useragent" label="30008" type="string">

@@ -1,14 +1,14 @@
 import threading
 from datetime import datetime
 from time import mktime, strptime, time
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 import xbmc
 import xbmcaddon
 import xbmcgui
 import xbmcvfs
 import xmltodict
-from default import authenticate, get_available_files
+from default import authenticate, get_available_files, replace_image
 from requests import Session
 from resources.lib.vodka import media_list, static
 
@@ -118,6 +118,8 @@ def export_channel_list(_session: Session) -> None:
                 (image for image in images if image.get("ratio") == "16:10"),
                 images[0],
             )["url"]
+            if addon.getSetting("webenabled"):
+                image = replace_image(image)
         # get media file id
         media_files = [
             media_file
@@ -302,6 +304,8 @@ def export_epg(
                         reverse=True,
                     )
                     image = images[0].get("Url")
+                    if addon.getSetting("webenabled"):
+                        image = replace_image(image)
                 year = next(
                     (
                         meta.get("Value")
