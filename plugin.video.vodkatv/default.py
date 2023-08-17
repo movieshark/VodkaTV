@@ -722,7 +722,7 @@ def update_epg(_session: Session) -> None:
         return
     dialog.notification(
         addon_name,
-        f"{addon.getLocalizedString(30084)}: -{from_time} nap - +{to_time} nap",
+        f"{addon.getLocalizedString(30084)}: -{from_time} {addon.getLocalizedString(30086)} - +{to_time} {addon.getLocalizedString(30086)}",
     )
     export_epg(_session, "-" + from_time, to_time, utc_offset)
 

@@ -366,3 +366,11 @@ msgstr ""
 msgctxt "#30084"
 msgid "EPG update"
 msgstr ""
+
+msgctxt "#30085"
+msgid "Last EPG update"
+msgstr ""
+
+msgctxt "#30086"
+msgid "day"
+msgstr ""

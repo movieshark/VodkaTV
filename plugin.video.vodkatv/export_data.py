@@ -1,7 +1,6 @@
 import threading
 from datetime import datetime
-from re import match
-from time import time
+from time import mktime, strptime, time
 from urllib.parse import urlencode
 
 import xbmc
@@ -119,7 +118,6 @@ def export_channel_list(_session: Session) -> None:
                 (image for image in images if image.get("ratio") == "16:10"),
                 images[0],
             )["url"]
-        category = "vodkatv"
         # get media file id
         media_files = [
             media_file
@@ -133,7 +131,7 @@ def export_channel_list(_session: Session) -> None:
             continue
         media_file = media_files[0]["id"]
         # print channel data to m3u
-        output += f'#EXTINF:-1 tvg-id="{epg_id}" tvg-name="{name}" tvg-logo="{image}" group-title="{category}",{name}\n'
+        output += f'#EXTINF:-1 tvg-id="{epg_id}" tvg-name="{name}" tvg-logo="{image}" group-title="vodkatv",{name}\n'
         query = {
             "action": "play_channel",
             "name": name,
@@ -174,28 +172,11 @@ def voda_to_epg_time(voda_time: str) -> str:
         return datetime.strptime(voda_time, "%d/%m/%Y %H:%M:%S").strftime(
             "%Y%m%d%H%M%S %z"
         )
+    # https://bugs.python.org/issue27400
     except TypeError:
-        return voda_to_epg_time_with_regex(voda_time)
-
-
-def voda_to_epg_time_with_regex(voda_time: str) -> str:
-    """
-    Convert Voda time to EPG time format. Apparently datetime is buggy on certain Kodi versions.
-    So we use regex to parse the date.
-
-    :param voda_time: Voda time format
-    :return: EPG time format (strftime("%Y%m%d%H%M%S %z"))
-    """
-    # dirty hack
-
-    pattern = r"(\d{2})/(\d{2})/(\d{4}) (\d{2}):(\d{2}):(\d{2})"
-    matched = match(pattern, voda_time)
-    if matched:
-        day, month, year, hour, minute, second = matched.groups()
-        new_time_format = f"{year}{month}{day}{hour}{minute}{second} "
-        return new_time_format
-    else:
-        raise ValueError("Invalid date format")
+        return datetime.fromtimestamp(
+            mktime(strptime(voda_time, "%d/%m/%Y %H:%M:%S"))
+        ).strftime("%Y%m%d%H%M%S %z")
 
 
 def export_epg(
@@ -506,19 +487,6 @@ class EPGUpdaterThread(threading.Thread):
         self.killed.set()
 
 
-def int_to_time(value: int) -> int:
-    """Converts an integer to a time string using a lookup table"""
-    options = {
-        0: 3 * 60 * 60,
-        1: 6 * 60 * 60,
-        2: 12 * 60 * 60,
-        3: 24 * 60 * 60,
-        4: 48 * 60 * 60,
-        5: 72 * 60 * 60,
-    }
-    return options.get(value, 12 * 60 * 60)
-
-
 def main_service():
     """
     Main service loop.
@@ -537,10 +505,10 @@ def main_service():
         xbmc.log(f"{handle} No KSToken set, won't start", level=xbmc.LOGWARNING)
         return
     # get epg settings
-    from_time = addon.getSetting("epgfrom")
-    to_time = addon.getSetting("epgto")
+    from_time = addon.getSettingInt("epgfrom")
+    to_time = addon.getSettingInt("epgto")
     utc_offset = get_utc_offset()
-    frequency = addon.getSetting("epgupdatefreq")
+    frequency = addon.getSettingInt("epgupdatefrequency")
     last_update = addon.getSetting("lastepgupdate")
     if not last_update:
         last_update = 0
@@ -549,9 +517,6 @@ def main_service():
     if not all([from_time, to_time, frequency]):
         xbmc.log(f"{handle} EPG settings not set, won't start", level=xbmc.LOGWARNING)
         return
-    from_time = int(from_time)
-    to_time = int(to_time)
-    frequency = int_to_time(int(frequency))
     # start epg updater thread
     monitor = xbmc.Monitor()
     epg_updater = EPGUpdaterThread(

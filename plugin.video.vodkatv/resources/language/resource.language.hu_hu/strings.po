@@ -381,3 +381,11 @@ msgstr "Nem indult el az EPG frissítés, mert nincs beállítva az időinterval
 msgctxt "#30084"
 msgid "EPG update"
 msgstr "EPG frissítés"
+
+msgctxt "#30085"
+msgid "Last EPG update"
+msgstr "Utolsó EPG frissítés"
+
+msgctxt "#30086"
+msgid "day"
+msgstr "nap"
