@@ -188,7 +188,7 @@
                                 <condition operator="!is" setting="epgexportname"></condition>
                                 <condition operator="!is" setting="epgfrom"></condition>
                                 <condition operator="!is" setting="epgto"></condition>
-                                <condition operator="!is" setting="epgupdatefreq"></condition>
+                                <condition operator="!is" setting="epgupdatefrequency"></condition>
                                 <condition operator="!is" setting="kstoken"></condition>
                             </and>
                         </dependency>
