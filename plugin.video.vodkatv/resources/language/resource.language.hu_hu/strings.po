@@ -409,3 +409,11 @@ msgstr ""
 msgctxt "#30091"
 msgid "Port {port} already in use, couldn't start the web proxy."
 msgstr "A {port} port már használatban van, így nem indult el a web proxy."
+
+msgctxt "#30092"
+msgid "This item will be played in the future. Please wait until it starts."
+msgstr "Ezt az elemet a jövőben fogják leadni. Kérlek várj, amíg elkezdődik."
+
+msgctxt "#30093"
+msgid "This item was live in the past and due to content restrictions it can't be played back."
+msgstr "Ez az elem a múltban volt leadva, és a tartalom korlátozások miatt már nem játszható le."

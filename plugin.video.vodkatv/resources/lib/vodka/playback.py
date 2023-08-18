@@ -40,7 +40,7 @@ def get_playback_obj(
         "contextDataParams": {
             "objectType": f"{static.get_ott_platform_name()}PlaybackContextOptions",
             "assetFileIds": asset_file_id,
-            "context": "PLAYBACK",
+            "context": "PLAYBACK" if asset_type == "media" else "CATCHUP",
             "urlType": "DIRECT",
         },
         "apiVersion": api_version,

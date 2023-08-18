@@ -1,14 +1,15 @@
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 from time import mktime, strptime, time
-from urllib.parse import urlencode, urlparse
+from typing import Tuple
+from urllib.parse import urlencode
 
 import xbmc
 import xbmcaddon
 import xbmcgui
 import xbmcvfs
 import xmltodict
-from default import authenticate, get_available_files, replace_image, prepare_session
+from default import authenticate, get_available_files, prepare_session, replace_image
 from requests import Session
 from resources.lib.vodka import media_list, static
 
@@ -133,7 +134,7 @@ def export_channel_list(_session: Session) -> None:
             continue
         media_file = media_files[0]["id"]
         # print channel data to m3u
-        output += f'#EXTINF:-1 tvg-id="{epg_id}" tvg-name="{name}" tvg-logo="{image}" group-title="vodkatv",{name}\n'
+        output += f'#EXTINF:-1 tvg-id="{epg_id}" tvg-name="{name}" tvg-logo="{image}" group-title="vodkatv" catchup="vod",{name}\n'
         query = {
             "action": "play_channel",
             "name": name,
@@ -162,23 +163,27 @@ def export_channel_list(_session: Session) -> None:
     )
 
 
-def voda_to_epg_time(voda_time: str) -> str:
+def voda_to_epg_time(voda_time: str) -> Tuple[str, int]:
     """
-    Convert Voda time to EPG time format.
+    Convert Voda time to EPG time format and unix timestamp.
 
     :param voda_time: Voda time format
-    :return: EPG time format (strftime("%Y%m%d%H%M%S %z"))
+    :return: EPG time format (strftime("%Y%m%d%H%M%S %z")), unix timestamp
     """
     # ie. 14/08/2023 21:45:00 -> 20230809144500 +0200
     try:
-        return datetime.strptime(voda_time, "%d/%m/%Y %H:%M:%S").strftime(
-            "%Y%m%d%H%M%S %z"
+        voda_time = datetime.strptime(voda_time, "%d/%m/%Y %H:%M:%S")
+        return voda_time.strftime("%Y%m%d%H%M%S %z"), int(
+            voda_time.replace(tzinfo=timezone.utc).timestamp()
         )
     # https://bugs.python.org/issue27400
     except TypeError:
-        return datetime.fromtimestamp(
+        voda_time = datetime.fromtimestamp(
             mktime(strptime(voda_time, "%d/%m/%Y %H:%M:%S"))
-        ).strftime("%Y%m%d%H%M%S %z")
+        )
+        return voda_time.strftime("%Y%m%d%H%M%S %z"), int(
+            voda_time.replace(tzinfo=timezone.utc).timestamp()
+        )
 
 
 def export_epg(
@@ -225,7 +230,7 @@ def export_epg(
         _session, addon.getSetting("phoenixgw"), addon.getSetting("kstoken")
     )
     channel_data = []
-    epg_ids = []
+    epg_ids = {}
     program_data = []
     for channel in channels:
         # check if we need to abort
@@ -249,19 +254,32 @@ def export_epg(
                 (image for image in images if image.get("ratio") == "16:10"),
                 images[0],
             )["url"]
+        # get media file id
+        media_files = [
+            media_file
+            for media_file in channel.get("mediaFiles")
+            if media_file.get("type") in static.media_file_ids
+        ]
+        # sort media files that contain 'HD' earlier
+        media_files.sort(key=lambda x: x.get("type").lower().find("hd"), reverse=True)
+        if not media_files:
+            continue
+        media_file = media_files[0]["id"]
         channel = {
             "@id": epg_id,
             "display-name": name,
             "icon": {"@src": image},
         }
         channel_data.append(channel)
-        epg_ids.append(epg_id)
+        epg_ids[epg_id] = media_file
     # fetch EPG data in chunks
-    for i in range(0, len(epg_ids), chunk_size):
+    for i in range(0, len(epg_ids.keys()), chunk_size):
         # check if we need to abort
         if kill_event and kill_event.is_set():
             return
-        chunk = epg_ids[i : i + chunk_size]
+        chunk = list(epg_ids.keys())[
+            i : i + chunk_size
+        ]  # TODO: look for a more efficient way
         channel_programs = media_list.get_epg_by_channel_ids(
             _session,
             addon.getSetting("jsonpostgw"),
@@ -284,10 +302,11 @@ def export_epg(
             for programme in programme_object:
                 start_date = programme.get("START_DATE")
                 end_date = programme.get("END_DATE")
+                epg_programme_id = programme.get("EPG_ID")
                 if not all([start_date, end_date]):
                     continue
-                start_date = voda_to_epg_time(start_date.strip())
-                end_date = voda_to_epg_time(end_date.strip())
+                start_date, start_date_unix = voda_to_epg_time(start_date.strip())
+                end_date, end_date_unix = voda_to_epg_time(end_date.strip())
                 name = programme.get("NAME")
                 description = programme.get("DESCRIPTION")
                 epg_meta = programme.get("EPG_Meta", {})
@@ -353,6 +372,11 @@ def export_epg(
                 directors = [
                     tag.get("Value") for tag in epg_tags if tag.get("Key") == "director"
                 ]
+                content_tags = [
+                    tag.get("Value")
+                    for tag in epg_tags
+                    if tag.get("Key") == "contentTags"
+                ]
 
                 programme = {
                     "@start": start_date,
@@ -361,6 +385,20 @@ def export_epg(
                     "title": {"@lang": "hu", "#text": name},
                     "desc": {"@lang": "hu", "#text": description},
                 }
+                catchup_url = f"plugin://{addon.getAddonInfo('id')}/?action=catchup&id={epg_programme_id}&cid={epg_ids[int(epg_channel_id)]}&start={start_date_unix}&end={end_date_unix}"
+                to_catchup = False
+                if static.recordable in content_tags:
+                    catchup_url += "&rec=1"
+                    to_catchup = True
+                else:
+                    catchup_url += "&rec=0"
+                if static.restartable in content_tags:
+                    catchup_url += "&res=1"
+                    to_catchup = True
+                else:
+                    catchup_url += "&res=0"
+                if to_catchup:
+                    programme["@catchup-id"] = catchup_url
                 if year:
                     programme["date"] = year
                 # Prepare categories
@@ -523,7 +561,6 @@ def main_service() -> EPGUpdaterThread:
         xbmc.log(f"{handle} EPG settings not set, won't start", level=xbmc.LOGWARNING)
         return
     # start epg updater thread
-    monitor = xbmc.Monitor()
     epg_updater = EPGUpdaterThread(
         _session, from_time, to_time, utc_offset, frequency, last_update
     )

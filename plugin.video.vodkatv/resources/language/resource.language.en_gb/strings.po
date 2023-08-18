@@ -394,3 +394,11 @@ msgstr ""
 msgctxt "#30091"
 msgid "Port {port} already in use, couldn't start the web proxy."
 msgstr ""
+
+msgctxt "#30092"
+msgid "This item will be played in the future. Please wait until it starts."
+msgstr ""
+
+msgctxt "#30093"
+msgid "This item was live in the past and due to content restrictions it can't be played back."
+msgstr ""

@@ -22,6 +22,8 @@ api_version = "5.2"
 channel_type = "519"
 channel_id = 100347432
 media_file_ids = ["Web_Secondary_HD", "Web_Secondary_SD"]
+recordable = "w_npvr=1"
+restartable = "w_restart=1"
 
 cache = {}
 

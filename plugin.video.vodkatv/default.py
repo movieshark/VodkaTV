@@ -477,7 +477,7 @@ def try_register_device(session: Session) -> None:
         dialog.ok(addon_name, addon.getLocalizedString(30025).format(message=e.message))
 
 
-def _gen_mgr_params(playback_obj: list) -> str:
+def _gen_mgr_params(playback_obj: list, asset_type: str) -> str:
     """
     Generates the parameters for playback manager's statistics report.
 
@@ -486,15 +486,22 @@ def _gen_mgr_params(playback_obj: list) -> str:
     """
     try:
         params = {}
-        params["assetType"] = "MEDIA"
-        params["id"] = playback_obj["id"]
-        params["assetId"] = playback_obj["assetId"]
+        if asset_type == "media":
+            params["assetType"] = "MEDIA"
+            params["id"] = playback_obj["id"]
+            params["assetId"] = playback_obj["assetId"]
+        elif asset_type == "epg":
+            params["assetType"] = "CATCHUP"
+            params["id"] = playback_obj["id"]
+            params["assetId"] = playback_obj["assetId"]
     except (KeyError, IndexError):
         return ""
     return urlencode(params)
 
 
-def play(session: Session, media_id: int, asset_file_id: int) -> None:
+def play(
+    session: Session, media_id: int, asset_file_id: int, asset_type: str = "media"
+) -> None:
     """
     Fetches the playback object and attempts to start the playback
      using the chosen DRM system.
@@ -511,6 +518,7 @@ def play(session: Session, media_id: int, asset_file_id: int) -> None:
             addon.getSetting("kstoken"),
             media_id,
             asset_file_id,
+            asset_type=asset_type,
         )
     except PlaybackException as e:
         if e.code == "1003":  # Device not in household
@@ -553,7 +561,7 @@ def play(session: Session, media_id: int, asset_file_id: int) -> None:
         )
         return
     # construct 'trailer' parameters for playback manager
-    trailer_params = _gen_mgr_params(playback_obj)
+    trailer_params = _gen_mgr_params(playback_obj, asset_type)
     manifest_url = urlparse(playback_obj.get("url"))
     # extract host from domain
     hostname = manifest_url.hostname
@@ -743,6 +751,47 @@ def update_epg(_session: Session) -> None:
     export_epg(_session, "-" + from_time, to_time, utc_offset)
 
 
+def catchup(
+    session: Session,
+    media_id: int,
+    asset_file_id: int,
+    start: int,
+    stop: int,
+    recordable: bool,
+    restartable: bool,
+) -> None:
+    """
+    Catchup handler. Decide whether the playback of a certain item is possible or not.
+
+    :param session: requests session
+    :param media_id: media id
+    :param asset_file_id: asset file id
+    :param start: start time (unix time)
+    :param stop: stop time (unix time)
+    :param recordable: whether the item is recordable or not
+    :param restartable: whether the item is restartable or not
+    :return: None
+    """
+    # if its recordable and the title is live now or was in the past, then we can play it
+    if recordable and int(start) <= time():
+        play(session, media_id, asset_file_id, asset_type="epg")
+        return
+    # if its restartable and the title is live now, then we can play it
+    if restartable and int(start) <= time() <= int(stop):
+        play(session, media_id, asset_file_id, asset_type="epg")
+        return
+    # if the title was in the past, it was restartable, but it's not recordable,
+    #  then we can't play it, show a dialog
+    elif restartable and not recordable and int(stop) < time():
+        dialog = xbmcgui.Dialog()
+        dialog.ok(addon_name, addon.getLocalizedString(30093))
+        return
+    # if title is in the future, then we can't play it, show a dialog
+    if int(start) > time():
+        dialog = xbmcgui.Dialog()
+        dialog.ok(addon_name, addon.getLocalizedString(30092))
+
+
 def about_dialog() -> None:
     """
     Show the about dialog.
@@ -792,5 +841,15 @@ if __name__ == "__main__":
         exit()
     elif action == "export_epg":
         update_epg(session)
+    elif action == "catchup":
+        catchup(
+            session,
+            params["id"],
+            params["cid"],
+            params["start"],
+            params["end"],
+            params.get("rec", 0) == "1",
+            params.get("res", 0) == "1",
+        )
     elif action == "about":
         about_dialog()
