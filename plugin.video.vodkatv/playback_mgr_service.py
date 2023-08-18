@@ -87,8 +87,6 @@ class PlaybackStatReporterThread(threading.Thread):
         self.last_position = 0
 
     def run(self):
-        session = requests.Session()
-        session.headers.update({"User-Agent": self.user_agent})
         while not self.report_killed.is_set():
             self.report_killed.wait(timeout=30)
             if not self.report_killed.is_set() and self.player.isPlayingVideo():

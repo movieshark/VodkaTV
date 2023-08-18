@@ -8,7 +8,7 @@ import xbmcaddon
 import xbmcgui
 import xbmcvfs
 import xmltodict
-from default import authenticate, get_available_files, replace_image
+from default import authenticate, get_available_files, replace_image, prepare_session
 from requests import Session
 from resources.lib.vodka import media_list, static
 
@@ -504,7 +504,7 @@ def main_service() -> EPGUpdaterThread:
     if not all([addon.getSetting("username"), addon.getSetting("password")]):
         xbmc.log(f"{handle} No credentials set, won't start", level=xbmc.LOGWARNING)
         return
-    _session = Session()
+    _session = prepare_session()
     authenticate(_session)
     if not addon.getSetting("kstoken"):
         xbmc.log(f"{handle} No KSToken set, won't start", level=xbmc.LOGWARNING)
