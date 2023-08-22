@@ -146,7 +146,7 @@ def export_channel_list(_session: Session) -> None:
         url = f"plugin://{addon.getAddonInfo('id')}/?{urlencode(query)}"
         output += f"{url}\n\n"
     try:
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             f.write(output)
     except IOError:
         dialog.notification(
