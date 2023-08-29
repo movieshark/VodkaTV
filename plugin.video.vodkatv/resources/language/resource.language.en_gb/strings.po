@@ -402,3 +402,7 @@ msgstr ""
 msgctxt "#30093"
 msgid "This item was live in the past and due to content restrictions it can't be played back."
 msgstr ""
+
+msgctxt "#30094"
+msgid "Your token is expired, but due to a Kodi bug, we cannot refresh it when the addon settings are open. Please open the addon's channel listing, which will refresh the token and try again."
+msgstr ""

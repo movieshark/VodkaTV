@@ -417,3 +417,7 @@ msgstr "Ezt az elemet a jövőben fogják leadni. Kérlek várj, amíg elkezdőd
 msgctxt "#30093"
 msgid "This item was live in the past and due to content restrictions it can't be played back."
 msgstr "Ez az elem a múltban volt leadva, és a tartalom korlátozások miatt már nem játszható le."
+
+msgctxt "#30094"
+msgid "Your token is expired, but due to a Kodi bug, we cannot refresh it when the addon settings are open. Please open the addon's channel listing, which will refresh the token and try again."
+msgstr "A tokened lejárt, de egy Kodi bug miatt nem tudjuk frissíteni, amíg a kiegészítő beállításai nyitva vannak. Kérlek nyisd meg a kiegészítő csatornalistáját, ami frissíti a tokent, majd próbáld újra."

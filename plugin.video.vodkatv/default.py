@@ -742,12 +742,20 @@ def update_epg(_session: Session) -> None:
     # since it's not used often
     from export_data import export_epg, get_utc_offset
 
+    ks_expiry = addon.getSetting("ksexpiry")
+    dialog = xbmcgui.Dialog()
+    if ks_expiry and int(ks_expiry) < int(time()):
+        # can't update EPG if the token is expired
+        # and due to a Kodi bug, when settings are opened
+        # we cannot refresh the token
+        dialog.ok(addon_name, addon.getLocalizedString(30094))
+        return
+
     # get epg settings
     from_time = addon.getSetting("epgfrom")
     to_time = addon.getSetting("epgto")
     utc_offset = get_utc_offset()
 
-    dialog = xbmcgui.Dialog()
     if not all([from_time, to_time]):
         dialog.ok(addon_name, addon.getLocalizedString(30083))
         return
