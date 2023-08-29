@@ -531,6 +531,13 @@ def play(
         if e.code == "1003":  # Device not in household
             try_register_device(session)
             return
+        elif e.code == "3037": # catchup buffer limit reached
+            dialog = xbmcgui.Dialog()
+            dialog.ok(
+                addon_name,
+                addon.getLocalizedString(30095),
+            )
+            return
         else:
             dialog = xbmcgui.Dialog()
             dialog.ok(

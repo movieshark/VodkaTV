@@ -406,3 +406,7 @@ msgstr ""
 msgctxt "#30094"
 msgid "Your token is expired, but due to a Kodi bug, we cannot refresh it when the addon settings are open. Please open the addon's channel listing, which will refresh the token and try again."
 msgstr ""
+
+msgctxt "#30095"
+msgid "This item can't be played back anymore. It's over the allowed catchup buffer limit."
+msgstr ""
