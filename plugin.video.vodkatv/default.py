@@ -807,6 +807,22 @@ def catchup(
         dialog.ok(addon_name, addon.getLocalizedString(30092))
 
 
+def export_chanlist(session: Session) -> None:
+    ks_expiry = addon.getSetting("ksexpiry")
+    dialog = xbmcgui.Dialog()
+    if ks_expiry and int(ks_expiry) < int(time()):
+        # can't update channel list if the token is expired
+        # and due to a Kodi bug, when settings are opened
+        # we cannot refresh the token
+        dialog.ok(addon_name, addon.getLocalizedString(30094))
+        return
+
+    import export_data
+
+    export_data.export_channel_list(addon, session)
+    exit()
+
+
 def about_dialog() -> None:
     """
     Show the about dialog.
@@ -850,10 +866,7 @@ if __name__ == "__main__":
     elif action == "del_device":
         delete_device(session, params.get("device_id"))
     elif action == "export_chanlist":
-        import export_data
-
-        export_data.export_channel_list(addon, session)
-        exit()
+        export_chanlist(session)
     elif action == "export_epg":
         update_epg(session)
     elif action == "catchup":
