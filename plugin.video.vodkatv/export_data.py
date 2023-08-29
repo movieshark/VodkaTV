@@ -13,11 +13,8 @@ from default import authenticate, get_available_files, prepare_session, replace_
 from requests import Session
 from resources.lib.vodka import media_list, static
 
-addon = xbmcaddon.Addon()
-handle = f"[{addon.getAddonInfo('name')}]"
 
-
-def get_path(is_epg: bool = False) -> str:
+def get_path(addon: xbmcaddon.Addon(), is_epg: bool = False) -> str:
     """
     Check if the channel and epg path exists
 
@@ -41,7 +38,7 @@ def get_path(is_epg: bool = False) -> str:
     return xbmcvfs.translatePath(f"{path}/{name}")
 
 
-def export_channel_list(_session: Session) -> None:
+def export_channel_list(addon: xbmcaddon.Addon(), _session: Session) -> None:
     """
     Export channel list to an m3u file
 
@@ -50,7 +47,7 @@ def export_channel_list(_session: Session) -> None:
     """
     dialog = xbmcgui.Dialog()
     try:
-        path = get_path()
+        path = get_path(addon)
     except IOError:
         dialog.notification(
             addon.getAddonInfo("name"),
@@ -65,7 +62,7 @@ def export_channel_list(_session: Session) -> None:
             xbmcgui.NOTIFICATION_ERROR,
         )
         return
-    authenticate(_session)
+    authenticate(_session, addon)
     # print m3u header
     output = "#EXTM3U\n\n"
     channels = media_list.get_channel_list(
@@ -187,6 +184,7 @@ def voda_to_epg_time(voda_time: str) -> Tuple[str, int]:
 
 
 def export_epg(
+    addon: xbmcaddon.Addon,
     _session: Session,
     from_time: int,
     to_time: int,
@@ -203,13 +201,14 @@ def export_epg(
     :param kill_event: threading.Event object to kill the thread (optional)
     :return: None
     """
+    handle = f"[{addon.getAddonInfo('name')}]"
     xbmc.log(
         f"{handle} Exporting EPG data from {from_time} days to +{to_time} days started",
         xbmc.LOGINFO,
     )
     dialog = xbmcgui.Dialog()
     try:
-        path = get_path(is_epg=True)
+        path = get_path(addon, is_epg=True)
     except IOError:
         dialog.notification(
             addon.getAddonInfo("name"),
@@ -224,7 +223,7 @@ def export_epg(
             xbmcgui.NOTIFICATION_ERROR,
         )
         return
-    authenticate(_session)
+    authenticate(_session, addon)
     chunk_size = addon.getSettingInt("epgfetchinonereq")
     channels = media_list.get_channel_list(
         _session, addon.getSetting("phoenixgw"), addon.getSetting("kstoken")
@@ -468,6 +467,7 @@ class EPGUpdaterThread(threading.Thread):
 
     def __init__(
         self,
+        addon: xbmcaddon.Addon,
         _session: Session,
         from_time: int,
         to_time: int,
@@ -476,6 +476,7 @@ class EPGUpdaterThread(threading.Thread):
         last_updated: int,
     ):
         super().__init__()
+        self.addon = addon
         self._session = _session
         self.from_time = from_time
         self.to_time = to_time
@@ -490,23 +491,30 @@ class EPGUpdaterThread(threading.Thread):
         """Returns the current time in unix format"""
         return int(time())
 
+    @property
+    def handle(self) -> str:
+        """Returns the addon handle"""
+        return f"[{self.addon.getAddonInfo('name')}]"
+
     def run(self):
         """
         EPG update thread's main loop.
         """
         while not self.killed.is_set():
             xbmc.log(
-                f"{handle} EPG update: next update in {min(self.frequency, self.frequency - (self.now - self.last_updated))} seconds",
+                f"{self.handle} EPG update: next update in {min(self.frequency, self.frequency - (self.now - self.last_updated))} seconds",
                 xbmc.LOGINFO,
             )
             self.killed.wait(
                 min(self.frequency, self.frequency - (self.now - self.last_updated))
             )
-            if not self.killed.is_set() and not self.failed_count > addon.getSettingInt(
-                "epgfetchtries"
+            if (
+                not self.killed.is_set()
+                and not self.failed_count > self.addon.getSettingInt("epgfetchtries")
             ):
                 try:
                     export_epg(
+                        self.addon,
                         self._session,
                         -self.from_time,
                         self.to_time,
@@ -518,7 +526,7 @@ class EPGUpdaterThread(threading.Thread):
                 except Exception as e:
                     self.failed_count += 1
                     xbmc.log(
-                        f"{handle} EPG update failed: {e}",
+                        f"{self.handle} EPG update failed: {e}",
                         xbmc.LOGERROR,
                     )
                     self.killed.wait(5)
@@ -530,10 +538,11 @@ class EPGUpdaterThread(threading.Thread):
         self.killed.set()
 
 
-def main_service() -> EPGUpdaterThread:
+def main_service(addon: xbmcaddon.Addon) -> EPGUpdaterThread:
     """
     Main service loop.
     """
+    handle = f"[{addon.getAddonInfo('name')}]"
     if not addon.getSettingBool("autoupdateepg"):
         xbmc.log(
             f"{handle} EPG autoupdate disabled, won't start", level=xbmc.LOGWARNING
@@ -543,7 +552,7 @@ def main_service() -> EPGUpdaterThread:
         xbmc.log(f"{handle} No credentials set, won't start", level=xbmc.LOGWARNING)
         return
     _session = prepare_session()
-    authenticate(_session)
+    authenticate(_session, addon)
     if not addon.getSetting("kstoken"):
         xbmc.log(f"{handle} No KSToken set, won't start", level=xbmc.LOGWARNING)
         return
@@ -562,7 +571,7 @@ def main_service() -> EPGUpdaterThread:
         return
     # start epg updater thread
     epg_updater = EPGUpdaterThread(
-        _session, from_time, to_time, utc_offset, frequency, last_update
+        addon, _session, from_time, to_time, utc_offset, frequency, last_update
     )
     epg_updater.start()
     xbmc.log(f"{handle} Export EPG service started", level=xbmc.LOGINFO)
@@ -570,4 +579,4 @@ def main_service() -> EPGUpdaterThread:
 
 
 if __name__ == "__main__":
-    main_service()
+    main_service(xbmcaddon.Addon())

@@ -204,8 +204,8 @@ class XBMCPlayer(xbmc.Player):
 if __name__ == "__main__":
     monitor = xbmc.Monitor()
     player = XBMCPlayer()
-    export_service = e_main_service()
-    web_service = w_main_service()
+    export_service = e_main_service(addon)
+    web_service = w_main_service(addon)
     while not monitor.abortRequested():
         if monitor.waitForAbort(1):
             break

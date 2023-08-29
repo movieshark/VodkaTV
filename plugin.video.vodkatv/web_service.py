@@ -7,11 +7,6 @@ import xbmcaddon
 from bottle import default_app, hook, redirect, request, response, route
 from xbmcgui import NOTIFICATION_ERROR, Dialog
 
-addon = xbmcaddon.Addon()
-name = f"{addon.getAddonInfo('name')} v{addon.getAddonInfo('version')}"
-handle = f"[{name}]"
-welcome_text = f"{name} Web Service"
-
 
 class SilentWSGIRequestHandler(WSGIRequestHandler):
     """Custom WSGI Request Handler with logging disabled"""
@@ -33,13 +28,13 @@ class ThreadedWSGIServer(ThreadingMixIn, WSGIServer):
 
 @hook("before_request")
 def set_server_header():
-    response.set_header("Server", name)
+    response.set_header("Server", request.app.config["name"])
 
 
 @route("/")
 def index():
     response.content_type = "text/plain"
-    return welcome_text
+    return request.app.config["welcome_text"]
 
 
 @route("<url:path>", method=["GET"])
@@ -76,11 +71,16 @@ class WebServerThread(threading.Thread):
         self.web_killed.set()
 
 
-def main_service() -> WebServerThread:
+def main_service(addon: xbmcaddon.Addon) -> WebServerThread:
     if not addon.getSettingBool("webenabled"):
         xbmc.log(f"{handle} Web service disabled", xbmc.LOGWARNING)
         return
     app = default_app()
+    name = f"{addon.getAddonInfo('name')} v{addon.getAddonInfo('version')}"
+    handle = f"[{name}]"
+    welcome_text = f"{name} Web Service"
+    app.config["name"] = name
+    app.config["welcome_text"] = welcome_text
     try:
         httpd = make_server(
             addon.getSetting("webaddress"),

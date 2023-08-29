@@ -109,7 +109,7 @@ def prepare_session() -> Session:
     return session
 
 
-def authenticate(session: Session) -> None:
+def authenticate(session: Session, addon_from_thread: xbmcaddon.Addon = None) -> None:
     """
     Handles initial login, device registration and token refresh.
     Also generates the device key if it is not set.
@@ -117,12 +117,15 @@ def authenticate(session: Session) -> None:
     :param session: The requests session.
     :return: None
     """
-    if not all([addon.getSetting("username"), addon.getSetting("password")]):
+    addon_local = addon_from_thread or addon
+    if not all(
+        [addon_local.getSetting("username"), addon_local.getSetting("password")]
+    ):
         return
-    if not addon.getSetting("devicekey"):
+    if not addon_local.getSetting("devicekey"):
         device_id = misc.generate_ud_id()
-        addon.setSetting("devicekey", device_id)
-    ks_expiry = addon.getSetting("ksexpiry")
+        addon_local.setSetting("devicekey", device_id)
+    ks_expiry = addon_local.getSetting("ksexpiry")
     if ks_expiry and int(ks_expiry) > int(time()):
         return  # KS token is valid so no need to reauthenticate
     prog_dialog = xbmcgui.DialogProgress()
@@ -131,7 +134,7 @@ def authenticate(session: Session) -> None:
     # refresh KS token if it expired
     if ks_expiry and int(ks_expiry) < time():
         try:
-            prog_dialog.update(85, addon.getLocalizedString(30016))
+            prog_dialog.update(85, addon_local.getLocalizedString(30016))
             (
                 access_token,
                 refresh_token,
@@ -139,16 +142,16 @@ def authenticate(session: Session) -> None:
                 refresh_expiration_date,
             ) = login.refresh_access_token(
                 session,
-                addon.getSetting("jsonpostgw"),
-                addon.getSetting("ksrefreshtoken"),
-                ud_id=addon.getSetting("devicekey"),
-                api_user=addon.getSetting("apiuser"),
-                api_pass=addon.getSetting("apipass"),
-                platform=addon.getSetting("platform"),
+                addon_local.getSetting("jsonpostgw"),
+                addon_local.getSetting("ksrefreshtoken"),
+                ud_id=addon_local.getSetting("devicekey"),
+                api_user=addon_local.getSetting("apiuser"),
+                api_pass=addon_local.getSetting("apipass"),
+                platform=addon_local.getSetting("platform"),
                 device_brand_id=enums.DeviceBrandId.PCMAC.value,
-                token=addon.getSetting("kstoken"),
-                domain_id=addon.getSetting("domainid"),
-                site_guid=addon.getSetting("siteguid"),
+                token=addon_local.getSetting("kstoken"),
+                domain_id=addon_local.getSetting("domainid"),
+                site_guid=addon_local.getSetting("siteguid"),
             )
             prog_dialog.close()
         except HTTPError as e:
@@ -156,15 +159,17 @@ def authenticate(session: Session) -> None:
             # if it is, then the refresh token is invalid
             # so we need to reauthenticate
             if e.response.status_code == 403:
-                addon.setSetting("ksexpiry", "")
-                authenticate(session)
+                addon_local.setSetting("ksexpiry", "")
+                authenticate(session, addon_local)
                 return
             else:
                 raise e
     # fresh login
     else:
-        prog_dialog.update(50, addon.getLocalizedString(30022))
-        pkey, vodka_config = login.get_config(session, addon.getSetting("devicekey"))
+        prog_dialog.update(50, addon_local.getLocalizedString(30022))
+        pkey, vodka_config = login.get_config(
+            session, addon_local.getSetting("devicekey")
+        )
         json_post_gw = next(
             (
                 item["JsonGW"]
@@ -220,32 +225,33 @@ def authenticate(session: Session) -> None:
         ):
             prog_dialog.close()
             raise ValueError("Missing required parameters.")
-        addon.setSetting("jsonpostgw", json_post_gw)
-        addon.setSetting("phoenixgw", phoenix_gw)
-        addon.setSetting("licenseurlbase", license_url_base)
-        addon.setSetting("tenantid", tenant_id)
-        addon.setSetting("apiuser", api_user)
-        addon.setSetting("apipass", api_pass)
-        addon.setSetting("platform", platform)
+        addon_local.setSetting("jsonpostgw", json_post_gw)
+        addon_local.setSetting("phoenixgw", phoenix_gw)
+        addon_local.setSetting("licenseurlbase", license_url_base)
+        addon_local.setSetting("tenantid", tenant_id)
+        addon_local.setSetting("apiuser", api_user)
+        addon_local.setSetting("apipass", api_pass)
+        addon_local.setSetting("platform", platform)
         # we don't store the public key as it's not needed after a login
-        prog_dialog.update(75, addon.getLocalizedString(30023))
+        prog_dialog.update(75, addon_local.getLocalizedString(30023))
         try:
             login_response, access_token, refresh_token = login.sign_in(
                 session,
                 json_post_gw,
-                addon.getSetting("devicekey"),
+                addon_local.getSetting("devicekey"),
                 api_user,
                 api_pass,
                 platform,
-                addon.getSetting("username"),
-                addon.getSetting("password"),
+                addon_local.getSetting("username"),
+                addon_local.getSetting("password"),
                 pkey,
             )
         except login.LoginError as e:
             prog_dialog.close()
             dialog = xbmcgui.Dialog()
             dialog.ok(
-                addon_name, addon.getLocalizedString(30025).format(message=e.message)
+                addon_name,
+                addon_local.getLocalizedString(30025).format(message=e.message),
             )
             return
         # NOTE: tokens have a pipe character and the expiration date appended to them here
@@ -253,16 +259,16 @@ def authenticate(session: Session) -> None:
         refresh_token, refresh_expiration_date = refresh_token.split("|")
         site_guid = login_response["SiteGuid"]
         domain_id = login_response["DomainID"]
-        addon.setSetting("domainid", str(domain_id))
-        addon.setSetting("siteguid", site_guid)
+        addon_local.setSetting("domainid", str(domain_id))
+        addon_local.setSetting("siteguid", site_guid)
         # register device
-        prog_dialog.update(90, addon.getLocalizedString(30024))
+        prog_dialog.update(90, addon_local.getLocalizedString(30024))
         try:
             devices.register_device(
                 session,
                 json_post_gw,
-                addon.getSetting("devicenick"),
-                ud_id=addon.getSetting("devicekey"),
+                addon_local.getSetting("devicenick"),
+                ud_id=addon_local.getSetting("devicekey"),
                 api_user=api_user,
                 api_pass=api_pass,
                 platform=platform,
@@ -275,17 +281,18 @@ def authenticate(session: Session) -> None:
             prog_dialog.close()
             dialog = xbmcgui.Dialog()
             dialog.ok(
-                addon_name, addon.getLocalizedString(30025).format(message=e.message)
+                addon_name,
+                addon_local.getLocalizedString(30025).format(message=e.message),
             )
             return
         prog_dialog.close()
         # show success dialog
         dialog = xbmcgui.Dialog()
-        dialog.ok(addon_name, addon.getLocalizedString(30026))
-    addon.setSetting("kstoken", access_token)
-    addon.setSetting("ksrefreshtoken", refresh_token)
-    addon.setSetting("ksexpiry", str(expiration_date))
-    addon.setSetting("ksrefreshexpiry", str(refresh_expiration_date))
+        dialog.ok(addon_name, addon_local.getLocalizedString(30026))
+    addon_local.setSetting("kstoken", access_token)
+    addon_local.setSetting("ksrefreshtoken", refresh_token)
+    addon_local.setSetting("ksexpiry", str(expiration_date))
+    addon_local.setSetting("ksrefreshexpiry", str(refresh_expiration_date))
 
 
 def main_menu() -> None:
@@ -748,7 +755,7 @@ def update_epg(_session: Session) -> None:
         addon_name,
         f"{addon.getLocalizedString(30084)}: -{from_time} {addon.getLocalizedString(30086)} - +{to_time} {addon.getLocalizedString(30086)}",
     )
-    export_epg(_session, "-" + from_time, to_time, utc_offset)
+    export_epg(addon, _session, "-" + from_time, to_time, utc_offset)
 
 
 def catchup(
@@ -837,7 +844,7 @@ if __name__ == "__main__":
     elif action == "export_chanlist":
         import export_data
 
-        export_data.export_channel_list(session)
+        export_data.export_channel_list(addon, session)
         exit()
     elif action == "export_epg":
         update_epg(session)
