@@ -410,3 +410,35 @@ msgstr ""
 msgctxt "#30095"
 msgid "This item can't be played back anymore. It's over the allowed catchup buffer limit."
 msgstr ""
+
+msgctxt "#30096"
+msgid "Recordings"
+msgstr ""
+
+msgctxt "#30097"
+msgid "Channel"
+msgstr ""
+
+msgctxt "#30098"
+msgid "Next page"
+msgstr ""
+
+msgctxt "#30099"
+msgid "Start time"
+msgstr ""
+
+msgctxt "#30100"
+msgid "End time"
+msgstr ""
+
+msgctxt "#30101"
+msgid "Booking time"
+msgstr ""
+
+msgctxt "#30102"
+msgid "Delete time"
+msgstr ""
+
+msgctxt "#30103"
+msgid "You have reached the end of the list."
+msgstr ""

@@ -165,3 +165,42 @@ def get_epg_by_channel_ids(
     )
     response.raise_for_status()
     return response.json()
+
+
+def get_recordings(
+    _session: Session,
+    json_post_gw: str,
+    page_index: int = 0,
+    page_size: int = 50,
+    epg_channel_id: int = 0,
+    **kwargs,
+):
+    """
+    Fetches the recordings for a list of channels
+
+    :param _session: requests.Session object
+    :param json_post_gw: The JSON post gateway URL
+    :param page_index: The page index
+    :param page_size: The page size
+    :param epg_channel_id: The EPG channel ID
+    :param kwargs: Optional arguments
+    :return: A list of recordings
+    """
+    data = {
+        "pageSize": page_size,
+        "pageIndex": page_index,
+        "searchBy": "ByRecordingStatus",
+        "epgChannelID": epg_channel_id,
+        "recordingIDs": [],
+        "programIDs": [],
+        "seriesIDs": [],
+        "recordedEPGOrderObj": {"m_eOrderBy": "StartTime", "m_eOrderDir": "DESC"},
+        "recordingStatus": "Completed",
+        "initObj": construct_init_obj(**kwargs),
+    }
+    response = _session.post(
+        f"{json_post_gw}?m=GetRecordings",
+        json=data,
+    )
+    response.raise_for_status()
+    return response.json()

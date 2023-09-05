@@ -89,6 +89,30 @@ def get_devices(
     return response.json()["result"]["objects"], response.json()["result"]["totalCount"]
 
 
+def get_device(
+    _session: Session, gateway_phoenix_url: str, ks_token: str, **kwargs
+) -> dict:
+    """
+    Get the currently registered device information
+
+    :param _session: requests.Session object
+    :param gateway_phoenix_url: The gateway phoenix url
+    :param ks_token: The ks token
+    :param kwargs: Optional arguments
+    :return: A dict containing the device information
+    """
+    api_version = kwargs.get("api_version", static.api_version)
+    data = {
+        "apiVersion": api_version,
+        "ks": ks_token,
+    }
+    response = _session.post(
+        f"{gateway_phoenix_url}householddevice/action/get",
+        json=data,
+    )
+    return response.json()["result"]
+
+
 def get_device_brands(
     _session: Session, gateway_phoenix_url: str, ks_token: str, **kwargs
 ) -> list:

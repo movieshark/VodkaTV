@@ -22,6 +22,7 @@ api_version = "5.2"
 channel_type = "519"
 channel_id = 100347432
 media_file_ids = ["Web_Secondary_HD", "Web_Secondary_SD"]
+npvr_types = {"Web_Secondary_HD": "NPVR_TYPE_968", "Web_Secondary_SD": "NPVR_TYPE_960"}
 recordable = "w_npvr=1"
 restartable = "w_restart=1"
 

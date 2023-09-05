@@ -1,5 +1,5 @@
 import re
-from base64 import b64encode
+from base64 import b64decode, b64encode
 from json import loads
 from uuid import uuid4
 
@@ -9,6 +9,21 @@ from requests import Session
 from xmltodict import parse
 
 from . import static
+
+
+def get_token_exp(drm_token: str):
+    """
+    Get the token expiration time from the DRM token.
+
+    :param drm_token: The DRM token.
+    :return: The token expiration time.
+    """
+    # split the JWT token at the dots and keep the second part
+    data = b64decode(drm_token.split(".")[1] + "=====", validate=False).decode("utf-8")
+    # convert the JSON string to a dict
+    data = loads(data)
+    # get the exp value from the dict
+    return data["exp"]
 
 
 def construct_init_obj(**kwargs) -> dict:

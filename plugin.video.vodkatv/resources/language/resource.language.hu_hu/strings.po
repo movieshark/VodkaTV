@@ -425,3 +425,35 @@ msgstr "A tokened lejárt, de egy Kodi bug miatt nem tudjuk frissíteni, amíg a
 msgctxt "#30095"
 msgid "This item can't be played back anymore. It's over the allowed catchup buffer limit."
 msgstr "Ez az elem már nem játszható le, mivel túl rég volt leadva és túlmutat a megadott szolgáltatói kereten."
+
+msgctxt "#30096"
+msgid "Recordings"
+msgstr "Felvételek"
+
+msgctxt "#30097"
+msgid "Channel"
+msgstr "Csatorna"
+
+msgctxt "#30098"
+msgid "Next page"
+msgstr "Következő oldal"
+
+msgctxt "#30099"
+msgid "Start time"
+msgstr "Kezdési idő"
+
+msgctxt "#30100"
+msgid "End time"
+msgstr "Befejezési idő"
+
+msgctxt "#30101"
+msgid "Booking time"
+msgstr "Felvétel időpontja"
+
+msgctxt "#30102"
+msgid "Delete time"
+msgstr "Törlés időpontja"
+
+msgctxt "#30103"
+msgid "You have reached the end of the list."
+msgstr "Elérted a lista végét."

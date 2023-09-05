@@ -1,4 +1,4 @@
-from json import dumps
+from json import dumps, loads
 from random import choice
 from sys import argv
 from time import time
@@ -14,7 +14,11 @@ from resources.lib.utils import static as utils_static
 from resources.lib.utils import unix_to_date
 from resources.lib.utils.dns_resolver import resolve_domain
 from resources.lib.vodka import devices, enums, login, media_list, misc, static
-from resources.lib.vodka.playback import PlaybackException, get_playback_obj
+from resources.lib.vodka.playback import (
+    PlaybackException,
+    get_playback_obj,
+    get_recording_playback_object,
+)
 
 addon = xbmcaddon.Addon()
 addon_name = addon.getAddonInfo("name")
@@ -69,6 +73,9 @@ def add_item(plugin_prefix, handle, name, action, is_directory, **kwargs) -> Non
     if kwargs.get("mpaa"):
         info_labels.update({"mpaa": kwargs["mpaa"]})
         url += "&mpaa=%s" % (quote(kwargs["mpaa"]))
+    if kwargs.get("duration"):
+        info_labels.update({"duration": kwargs["duration"]})
+        url += "&duration=%s" % (kwargs["duration"])
     if kwargs.get("extra"):
         url += "&extra=%s" % (kwargs["extra"])
     if kwargs.get("is_livestream"):
@@ -309,6 +316,15 @@ def main_menu() -> None:
         action="channel_list",
         is_directory=True,
     )
+    # recordings
+    add_item(
+        plugin_prefix=argv[0],
+        handle=argv[1],
+        name=addon.getLocalizedString(30096),
+        action="recordings",
+        is_directory=True,
+        extra="0",  # page number
+    )
     # device list
     add_item(
         plugin_prefix=argv[0],
@@ -501,6 +517,10 @@ def _gen_mgr_params(playback_obj: list, asset_type: str) -> str:
             params["assetType"] = "CATCHUP"
             params["id"] = playback_obj["id"]
             params["assetId"] = playback_obj["assetId"]
+        elif asset_type == "recording":
+            params["assetType"] = "NPVR"
+            params["id"] = playback_obj["id"]
+            params["assetId"] = playback_obj["assetId"]
     except (KeyError, IndexError):
         return ""
     return urlencode(params)
@@ -531,7 +551,7 @@ def play(
         if e.code == "1003":  # Device not in household
             try_register_device(session)
             return
-        elif e.code == "3037": # catchup buffer limit reached
+        elif e.code == "3037":  # catchup buffer limit reached
             dialog = xbmcgui.Dialog()
             dialog.ok(
                 addon_name,
@@ -637,6 +657,308 @@ def play(
         license_url,
     )
     xbmcplugin.setResolvedUrl(int(argv[1]), True, listitem=play_item)
+
+
+def play_recording(session: Session, recording_id: int, media_id: list) -> None:
+    """
+    Method used to play recordings. Unfortunately works very differently from
+    live streams and catchups.
+
+    :param session: The requests session.
+    :param recording_id: The recording ID.
+    :param media_id: The media ID.
+    :return: None
+    """
+    media_id, media_type = loads(media_id.replace("'", '"'))
+    referrer = static.npvr_types.get(media_type, list(static.npvr_types.keys())[0])
+    try:
+        playback_object = get_recording_playback_object(
+            session,
+            addon.getSetting("jsonpostgw"),
+            recording_id,
+            int(media_id),
+            referrer=referrer,
+            api_user=addon.getSetting("apiuser"),
+            api_pass=addon.getSetting("apipass"),
+            domain_id=addon.getSetting("domainid"),
+            site_guid=addon.getSetting("siteguid"),
+            platform=addon.getSetting("platform"),
+            ud_id=addon.getSetting("devicekey"),
+            token=addon.getSetting("kstoken"),
+        )
+    except PlaybackException as e:
+        drm_token = xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty(
+            "kodi.vodka.drm_token", ""
+        )
+        try_register_device(session)
+        dialog = xbmcgui.Dialog()
+        dialog.ok(
+            addon_name,
+            e.message,
+        )
+        return
+    main_url = playback_object.get("mainUrl")
+    if not main_url:
+        dialog = xbmcgui.Dialog()
+        dialog.ok(
+            addon_name,
+            addon.getLocalizedString(30030),
+        )
+        return
+    # check if we have a cached DRM token and if it's still valid
+    drm_token = xbmcgui.Window(xbmcgui.getCurrentWindowId()).getProperty(
+        "kodi.vodka.drm_token"
+    )
+    if not drm_token or misc.get_token_exp(drm_token) < time():
+        # get DRM token
+        device_info = devices.get_device(
+            session,
+            addon.getSetting("phoenixgw"),
+            addon.getSetting("kstoken"),
+        )
+        drm_token = device_info.get("drm", {}).get("data")
+        if not drm_token:
+            dialog = xbmcgui.Dialog()
+            dialog.ok(
+                addon_name,
+                addon.getLocalizedString(30032),
+            )
+            return
+        xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty(
+            "kodi.vodka.drm_token", drm_token
+        )
+    trailer_data = {
+        "id": recording_id,
+        "assetId": media_id,
+    }
+    trailer_params = _gen_mgr_params(trailer_data, "recording")
+    manifest_url = urlparse(main_url)
+    # extract host from domain
+    hostname = manifest_url.hostname
+    ip = resolve_domain(hostname)
+    if not ip:
+        xbmcgui.Dialog().ok(
+            addon_name,
+            addon.getLocalizedString(30035).format(url=manifest_url.geturl()),
+        )
+        return
+    # replace hostname with IP and specify port 80
+    manifest_url = manifest_url._replace(netloc=f"{ip}:80")
+    # replace https with http
+    manifest_url = manifest_url._replace(scheme="http")
+    response = session.head(
+        manifest_url.geturl(), allow_redirects=False, headers={"Host": hostname}
+    )
+    manifest_url = response.headers.get("Location")
+    drm_system = addon.getSettingInt("drmsystem")
+    # construct playback item
+    is_helper = inputstreamhelper.Helper("mpd", drm="com.widevine.alpha")
+    play_item = xbmcgui.ListItem(path=manifest_url)
+    play_item.setContentLookup(False)
+    play_item.setInfo("video", {"trailer": argv[0] + "?" + trailer_params})
+    play_item.setMimeType("application/dash+xml")
+    play_item.setProperty("inputstream", is_helper.inputstream_addon)
+    play_item.setProperty("inputstream.adaptive.manifest_type", "mpd")
+    play_item.setProperty(
+        "inputstream.adaptive.manifest_headers",
+        urlencode({"User-Agent": addon.getSetting("useragent")}),
+    )
+    if drm_system == 0:  # Widevine
+        if not is_helper.check_inputstream():
+            xbmcgui.Dialog().ok(
+                addon_name,
+                addon.getLocalizedString(30050),
+            )
+            return
+        license_headers = {
+            "User-Agent": addon.getSetting("useragent"),
+            "Content-Type": "application/octet-stream",  # NOTE: important
+            "nv-authorizations": drm_token,
+        }
+        license_url = f"{addon.getSetting('licenseurlbase')}/{addon.getSetting('tenantid')}/wvls/contentlicenseservice/v1/licenses|{urlencode(license_headers)}|R{{SSM}}|"
+        play_item.setProperty("inputstream.adaptive.license_type", "com.widevine.alpha")
+    elif drm_system == 1:  # PlayReady
+        license_headers = {
+            "User-Agent": addon.getSetting("useragent"),
+            "Content-Type": "text/xml",
+            "SOAPAction": "http://schemas.microsoft.com/DRM/2007/03/protocols/AcquireLicense",
+            "nv-authorizations": drm_token,
+        }
+        license_url = f"{addon.getSetting('licenseurlbase')}/{addon.getSetting('tenantid')}/prls/contentlicenseservice/v1/licenses|{urlencode(license_headers)}|R{{SSM}}|"
+        play_item.setProperty(
+            "inputstream.adaptive.license_type", "com.microsoft.playready"
+        )
+    play_item.setProperty(
+        "inputstream.adaptive.license_key",
+        license_url,
+    )
+    xbmcplugin.setResolvedUrl(int(argv[1]), True, listitem=play_item)
+
+
+def get_recordings(session: Session, page_num: int) -> None:
+    """
+    Renders the list of recordings.
+
+    :param session: The requests session.
+    :param page_num: The page number.
+    :return: None
+    """
+    # ugly channel cache
+    HOME_ID = 10000  # https://kodi.wiki/view/Window_IDs
+    channels = xbmcgui.Window(HOME_ID).getProperty("kodi.vodka.channels")
+    epg_ids = {}
+    if channels:
+        epg_ids = loads(channels)
+    else:
+        # upon first run, fetch the channel list into a dict where the key
+        # is the epg id and the value is a list with the media file id and pvr type
+        channels = media_list.get_channel_list(
+            session, addon.getSetting("phoenixgw"), addon.getSetting("kstoken")
+        )
+        for channel in channels:
+            epg_id = str(
+                next(
+                    (
+                        value.get("value")
+                        for key, value in channel.get("metas", {}).items()
+                        if key == "EPG_GUID_ID"
+                    ),
+                    channel.get("id"),
+                )
+            )
+            if not epg_id:
+                continue
+                # get media file id
+            media_files = [
+                media_file
+                for media_file in channel.get("mediaFiles")
+                if media_file.get("type") in static.media_file_ids
+            ]
+            # sort media files that contain 'HD' earlier
+            media_files.sort(
+                key=lambda x: x.get("type").lower().find("hd"), reverse=True
+            )
+            if not media_files:
+                continue
+            media_file = media_files[0]
+            epg_ids[epg_id] = [str(media_file["id"]), media_file["type"]]
+
+            xbmcgui.Window(HOME_ID).setProperty("kodi.vodka.channels", dumps(epg_ids))
+    page_num = int(page_num)
+    recordings = media_list.get_recordings(
+        session,
+        addon.getSetting("jsonpostgw"),
+        page_num,
+        api_user=addon.getSetting("apiuser"),
+        api_pass=addon.getSetting("apipass"),
+        domain_id=addon.getSetting("domainid"),
+        site_guid=addon.getSetting("siteguid"),
+        platform=addon.getSetting("platform"),
+        ud_id=addon.getSetting("devicekey"),
+        token=addon.getSetting("kstoken"),
+    )
+    if not recordings:
+        dialog = xbmcgui.Dialog()
+        dialog.ok(addon_name, addon.getLocalizedString(30103))
+        return
+    for recording in recordings:
+        recording_id = recording.get("RecordingID")
+        if not recording_id:
+            continue
+        name = recording.get("NAME")
+        description = recording.get("DESCRIPTION")
+        channel_name = recording.get("ChannelName")
+        epg_channel_id = recording.get("EPG_CHANNEL_ID")
+        image = recording.get("PIC_URL")
+        if isinstance(image, str) and addon.getSettingBool("webenabled"):
+            # i encountered a case where the image url was bytes
+            image = replace_image(image)
+        epg_tags = recording.get("EPG_TAGS")
+        start_time = next(
+            (tag["Value"] for tag in epg_tags if tag["Key"] == "startTime"),
+            None,
+        )
+        end_time = next(
+            (tag["Value"] for tag in epg_tags if tag["Key"] == "endTime"),
+            None,
+        )
+        booking_time = next(
+            (tag["Value"] for tag in epg_tags if tag["Key"] == "bookingTime"),
+            None,
+        )
+        delete_time = next(
+            (tag["Value"] for tag in epg_tags if tag["Key"] == "deleteTime"),
+            None,
+        )
+        duration = next(
+            (tag["Value"] for tag in epg_tags if tag["Key"] == "duration"),
+            None,
+        )
+        year = next(
+            (tag["Value"] for tag in epg_tags if tag["Key"] == "year"),
+            None,
+        )
+        series_name = next(
+            (tag["Value"] for tag in epg_tags if tag["Key"] == "seriesName"),
+            None,
+        )
+        season_number = next(
+            (tag["Value"] for tag in epg_tags if tag["Key"] == "seasonNumber"),
+            None,
+        )
+        episode_number = next(
+            (tag["Value"] for tag in epg_tags if tag["Key"] == "episode"),
+            None,
+        )
+        content_tags = next(
+            (tag["Value"] for tag in epg_tags if tag["Key"] == "contentTags"),
+            "",
+        ).split(" ")
+        is_recordable = False
+        if static.recordable in content_tags:
+            is_recordable = True
+        else:
+            name = f"[COLOR red]{name}[/COLOR]"
+        # construct description
+        description += f"\n\n{addon.getLocalizedString(30097)}: {channel_name}"
+        if start_time:
+            description += f"\n{addon.getLocalizedString(30099)}: {unix_to_date(int(start_time) // 1000)}"
+        if end_time:
+            description += f"\n{addon.getLocalizedString(30100)}: {unix_to_date(int(end_time) // 1000)}"
+        if booking_time:
+            description += f"\n{addon.getLocalizedString(30101)}: {unix_to_date(int(booking_time) // 1000)}"
+        if delete_time:
+            description += f"\n{addon.getLocalizedString(30102)}: {unix_to_date(int(delete_time) // 1000)}"
+        # add item
+        add_item(
+            plugin_prefix=argv[0],
+            handle=argv[1],
+            name=name,
+            description=description,
+            action="play_recording" if is_recordable else "dummy",
+            is_directory=False,
+            id=recording_id,
+            icon=image,
+            is_livestream=False,
+            refresh=True,
+            year=year,
+            episode=episode_number,
+            season=season_number,
+            show_name=series_name,
+            duration=duration,
+            extra=str(epg_ids.get(epg_channel_id)),
+        )
+    # add pagination
+    add_item(
+        plugin_prefix=argv[0],
+        handle=argv[1],
+        name=addon.getLocalizedString(30098) + " >",
+        action="recordings",
+        is_directory=True,
+        extra=str(page_num + 1),
+    )
+    xbmcplugin.setContent(int(argv[1]), "tvshows")
+    xbmcplugin.endOfDirectory(int(argv[1]))
 
 
 def device_list(session: Session) -> None:
@@ -868,6 +1190,10 @@ if __name__ == "__main__":
         channel_list(session)
     elif action == "play_channel":
         play(session, params["id"], params["extra"])
+    elif action == "play_recording":
+        play_recording(session, params["id"], params["extra"])
+    elif action == "recordings":
+        get_recordings(session, params["extra"])
     elif action == "device_list":
         device_list(session)
     elif action == "del_device":

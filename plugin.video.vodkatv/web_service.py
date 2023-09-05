@@ -72,12 +72,12 @@ class WebServerThread(threading.Thread):
 
 
 def main_service(addon: xbmcaddon.Addon) -> WebServerThread:
+    name = f"{addon.getAddonInfo('name')} v{addon.getAddonInfo('version')}"
+    handle = f"[{name}]"
     if not addon.getSettingBool("webenabled"):
         xbmc.log(f"{handle} Web service disabled", xbmc.LOGWARNING)
         return
     app = default_app()
-    name = f"{addon.getAddonInfo('name')} v{addon.getAddonInfo('version')}"
-    handle = f"[{name}]"
     welcome_text = f"{name} Web Service"
     app.config["name"] = name
     app.config["welcome_text"] = welcome_text

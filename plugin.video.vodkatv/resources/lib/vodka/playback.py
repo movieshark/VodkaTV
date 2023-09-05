@@ -1,6 +1,7 @@
 from requests import Session
 
 from . import static
+from .misc import construct_init_obj
 
 
 class PlaybackException(Exception):
@@ -55,3 +56,34 @@ def get_playback_obj(
     if result.get("error"):
         raise PlaybackException(result["error"]["message"], result["error"]["code"])
     return result
+
+
+def get_recording_playback_object(
+    _session: Session,
+    json_post_gw: str,
+    recording_id: str,
+    media_id: int,
+    referrer: str = "NPVR_TYPE_968",
+    **kwargs,
+):
+    """
+    Get the playback object for a recording. This is used to get the playback URL.
+
+    :param _session: requests.Session object
+    :param json_post_gw: The JSON post gateway URL
+    :param recording_id: The ID of the recording
+    :param media_id: The ID of the media item
+    :param referrer: The referrer
+    :param kwargs: Optional arguments
+    """
+    data = {
+        "initObj": construct_init_obj(**kwargs),
+        "mediaFileID": int(media_id),
+        "recordingId": recording_id,
+        "referrer": referrer,
+    }
+    response = _session.post(f"{json_post_gw}?m=GetNPVRLicensedLink", json=data)
+    response.raise_for_status()
+    if response.json().get("status") != "OK":
+        raise PlaybackException(response.json().get("status"), 0)
+    return response.json()
