@@ -479,3 +479,11 @@ msgstr ""
 msgctxt "#30112"
 msgid "Add-on Settings"
 msgstr ""
+
+msgctxt "#30113"
+msgid "Recording already scheduled for this item."
+msgstr ""
+
+msgctxt "#30114"
+msgid "Unknown error occurred. Maybe the item you are trying to record isn't part of a series?"
+msgstr ""

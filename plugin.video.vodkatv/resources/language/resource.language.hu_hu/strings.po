@@ -495,3 +495,11 @@ msgstr "Felvétel sikeresen beütemezve!"
 msgctxt "#30112"
 msgid "Add-on Settings"
 msgstr "Kiegészítő beállítások"
+
+msgctxt "#30113"
+msgid "Recording already scheduled for this item."
+msgstr "Egy felvétel már ütemezve van erre az elemre."
+
+msgctxt "#30114"
+msgid "Unknown error occurred. Maybe the item you are trying to record isn't part of a series?"
+msgstr "Ismeretlen hiba történt. Lehet, hogy az elem, amit fel akarsz venni, nem sorozat?"

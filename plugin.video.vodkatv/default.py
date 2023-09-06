@@ -1154,6 +1154,11 @@ def catchup(
                         token=addon.getSetting("kstoken"),
                     )
                 except recording.RecordingException as e:
+                    if e.status == "AssetAlreadyScheduled":
+                        return dialog.ok(
+                            addon_name,
+                            addon.getLocalizedString(30113),
+                        )
                     return dialog.ok(
                         addon_name,
                         addon.getLocalizedString(30025).format(message=e.status),
@@ -1174,6 +1179,11 @@ def catchup(
                         token=addon.getSetting("kstoken"),
                     )
                 except recording.RecordingException as e:
+                    if e.status == "Unknown":
+                        return dialog.ok(
+                            addon_name,
+                            addon.getLocalizedString(30114),
+                        )
                     return dialog.ok(
                         addon_name,
                         addon.getLocalizedString(30025).format(message=e.status),
