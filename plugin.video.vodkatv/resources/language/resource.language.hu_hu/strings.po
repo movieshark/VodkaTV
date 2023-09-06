@@ -491,3 +491,7 @@ msgstr "Sorozat felvétele!"
 msgctxt "#30111"
 msgid "Recording scheduled successfully!"
 msgstr "Felvétel sikeresen beütemezve!"
+
+msgctxt "#30112"
+msgid "Add-on Settings"
+msgstr "Kiegészítő beállítások"

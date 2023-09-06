@@ -341,6 +341,14 @@ def main_menu() -> None:
         action="device_list",
         is_directory=True,
     )
+    # settings
+    add_item(
+        plugin_prefix=argv[0],
+        handle=argv[1],
+        name=addon.getLocalizedString(30112),
+        action="settings",
+        is_directory=True,
+    )
     # about
     add_item(
         plugin_prefix=argv[0],
@@ -972,7 +980,7 @@ def get_recordings(session: Session, page_num: int) -> None:
         is_directory=True,
         extra=str(page_num + 1),
     )
-    xbmcplugin.setContent(int(argv[1]), "tvshows")
+    xbmcplugin.setContent(int(argv[1]), "episodes")
     xbmcplugin.endOfDirectory(int(argv[1]))
 
 
@@ -1357,5 +1365,7 @@ if __name__ == "__main__":
         )
     elif action == "del_recording":
         delete_recording(session, params["recording_id"])
+    elif action == "settings":
+        addon.openSettings()
     elif action == "about":
         about_dialog()

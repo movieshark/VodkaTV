@@ -475,3 +475,7 @@ msgstr ""
 msgctxt "#30111"
 msgid "Recording scheduled successfully!"
 msgstr ""
+
+msgctxt "#30112"
+msgid "Add-on Settings"
+msgstr ""
