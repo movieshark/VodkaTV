@@ -8,7 +8,6 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 import xbmcvfs
-import xmltodict
 from default import authenticate, get_available_files, prepare_session, replace_image
 from requests import Session
 from resources.lib.vodka import media_list, static
@@ -183,6 +182,24 @@ def voda_to_epg_time(voda_time: str) -> Tuple[str, int]:
         )
 
 
+def enc_xml(text) -> str:
+    """
+    Method to encode an XML string
+
+    :param text: string to encode
+    :return: encoded string
+    """
+    to_replace = {
+        "&": "&amp;",
+        "'": "&apos;",
+        '"': "&quot;",
+        ">": "&gt;",
+        "<": "&lt;",
+    }
+    translation_table = str.maketrans(to_replace)
+    return text.translate(translation_table)
+
+
 def export_epg(
     addon: xbmcaddon.Addon,
     _session: Session,
@@ -224,221 +241,240 @@ def export_epg(
         )
         return
     authenticate(_session, addon)
+    temp_path = path + ".tmp"
     chunk_size = addon.getSettingInt("epgfetchinonereq")
     channels = media_list.get_channel_list(
         _session, addon.getSetting("phoenixgw"), addon.getSetting("kstoken")
     )
-    channel_data = []
-    epg_ids = {}
-    program_data = []
-    for channel in channels:
-        # check if we need to abort
-        if kill_event and kill_event.is_set():
-            return
-        epg_id = next(
-            (
-                value.get("value")
-                for key, value in channel.get("metas", {}).items()
-                if key == "EPG_GUID_ID"
-            ),
-            channel.get("id"),
+    with open(temp_path, "w", encoding="utf-8") as f:
+        # print XML header
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        f.write('<!DOCTYPE tv SYSTEM "xmltv.dtd">\n')
+        # print addont info
+        f.write(
+            f"<tv generator-info-name=\"{enc_xml(addon.getAddonInfo('name'))}\" generator-info-url=\"plugin://{addon.getAddonInfo('id')}/\">"
         )
-        if not epg_id:
-            continue
-        name = channel.get("name")
-        images = channel.get("images")
-        image = None
-        if images:
-            image = next(
-                (image for image in images if image.get("ratio") == "16:10"),
-                images[0],
-            )["url"]
-        # get media file id
-        media_files = [
-            media_file
-            for media_file in channel.get("mediaFiles")
-            if media_file.get("type") in static.media_file_ids
-        ]
-        # sort media files that contain 'HD' earlier
-        media_files.sort(key=lambda x: x.get("type").lower().find("hd"), reverse=True)
-        if not media_files:
-            continue
-        media_file = media_files[0]["id"]
-        channel = {
-            "@id": epg_id,
-            "display-name": name,
-            "icon": {"@src": image},
-        }
-        channel_data.append(channel)
-        epg_ids[epg_id] = media_file
-    # fetch EPG data in chunks
-    for i in range(0, len(epg_ids.keys()), chunk_size):
-        # check if we need to abort
-        if kill_event and kill_event.is_set():
-            return
-        chunk = list(epg_ids.keys())[
-            i : i + chunk_size
-        ]  # TODO: look for a more efficient way
-        channel_programs = media_list.get_epg_by_channel_ids(
-            _session,
-            addon.getSetting("jsonpostgw"),
-            chunk,
-            from_time,
-            to_time,
-            utc_offset,
-            api_user=addon.getSetting("apiuser"),
-            api_pass=addon.getSetting("apipass"),
-            domain_id=addon.getSetting("domainid"),
-            site_guid=addon.getSetting("siteguid"),
-            platform=addon.getSetting("platform"),
-            ud_id=addon.getSetting("devicekey"),
-        )
-        for channel in channel_programs:
-            epg_channel_id = channel.get("EPG_CHANNEL_ID")
-            if not epg_channel_id:
+        epg_ids = {}
+        for channel in channels:
+            # check if we need to abort
+            if kill_event and kill_event.is_set():
+                return
+            epg_id = next(
+                (
+                    value.get("value")
+                    for key, value in channel.get("metas", {}).items()
+                    if key == "EPG_GUID_ID"
+                ),
+                channel.get("id"),
+            )
+            if not epg_id:
                 continue
-            programme_object = channel.get("EPGChannelProgrammeObject")
-            for programme in programme_object:
-                start_date = programme.get("START_DATE")
-                end_date = programme.get("END_DATE")
-                epg_programme_id = programme.get("EPG_ID")
-                if not all([start_date, end_date]):
+            name = channel.get("name")
+            images = channel.get("images")
+            image = None
+            if images:
+                image = next(
+                    (image for image in images if image.get("ratio") == "16:10"),
+                    images[0],
+                )["url"]
+            # get media file id
+            media_files = [
+                media_file
+                for media_file in channel.get("mediaFiles")
+                if media_file.get("type") in static.media_file_ids
+            ]
+            # sort media files that contain 'HD' earlier
+            media_files.sort(
+                key=lambda x: x.get("type").lower().find("hd"), reverse=True
+            )
+            if not media_files:
+                continue
+            media_file = media_files[0]["id"]
+            # print channel data to XML
+            f.write(f'<channel id="{enc_xml(str(epg_id))}">')
+            f.write(f'<display-name lang="hu">{enc_xml(name)}</display-name>')
+            if image:
+                if isinstance(image, str) and addon.getSetting("webenabled"):
+                    # i have encountered a case where image was bytes
+                    image = replace_image(image)
+                f.write(f'<icon src="{enc_xml(image)}" />')
+            f.write("</channel>")
+            epg_ids[epg_id] = media_file
+        # fetch EPG data in chunks
+        for i in range(0, len(epg_ids.keys()), chunk_size):
+            # check if we need to abort
+            if kill_event and kill_event.is_set():
+                return
+            chunk = list(epg_ids.keys())[i : i + chunk_size]
+            channel_programs = media_list.get_epg_by_channel_ids(
+                _session,
+                addon.getSetting("jsonpostgw"),
+                chunk,
+                from_time,
+                to_time,
+                utc_offset,
+                api_user=addon.getSetting("apiuser"),
+                api_pass=addon.getSetting("apipass"),
+                domain_id=addon.getSetting("domainid"),
+                site_guid=addon.getSetting("siteguid"),
+                platform=addon.getSetting("platform"),
+                ud_id=addon.getSetting("devicekey"),
+            )
+            for channel in channel_programs:
+                epg_channel_id = channel.get("EPG_CHANNEL_ID")
+                if not epg_channel_id:
                     continue
-                start_date, start_date_unix = voda_to_epg_time(start_date.strip())
-                end_date, end_date_unix = voda_to_epg_time(end_date.strip())
-                name = programme.get("NAME")
-                description = programme.get("DESCRIPTION")
-                epg_meta = programme.get("EPG_Meta", {})
-                images = programme.get("EPG_PICTURES")
-                image = None
-                if images:
-                    # sort images by PicWidth and PicHeight, prefer Ratio = bg
-                    images.sort(
-                        key=lambda x: (
-                            x.get("PicWidth", 0),
-                            x.get("PicHeight", 0),
-                            x.get("Ratio", "") == "bg",
+                programme_object = channel.get("EPGChannelProgrammeObject")
+                for programme in programme_object:
+                    start_date = programme.get("START_DATE")
+                    end_date = programme.get("END_DATE")
+                    epg_programme_id = programme.get("EPG_ID")
+                    if not all([start_date, end_date]):
+                        continue
+                    start_date, start_date_unix = voda_to_epg_time(start_date.strip())
+                    end_date, end_date_unix = voda_to_epg_time(end_date.strip())
+                    name = programme.get("NAME")
+                    description = programme.get("DESCRIPTION")
+                    epg_meta = programme.get("EPG_Meta", {})
+                    images = programme.get("EPG_PICTURES")
+                    image = None
+                    if images:
+                        # sort images by PicWidth and PicHeight, prefer Ratio = bg
+                        images.sort(
+                            key=lambda x: (
+                                x.get("PicWidth", 0),
+                                x.get("PicHeight", 0),
+                                x.get("Ratio", "") == "bg",
+                            ),
+                            reverse=True,
+                        )
+                        image = images[0].get("Url")
+                        if isinstance(image, str) and addon.getSetting("webenabled"):
+                            # i have encountered a case where image was bytes
+                            image = replace_image(image)
+                    year = next(
+                        (
+                            meta.get("Value")
+                            for meta in epg_meta
+                            if meta.get("Key") == "year"
                         ),
-                        reverse=True,
+                        None,
                     )
-                    image = images[0].get("Url")
-                    if addon.getSetting("webenabled"):
-                        image = replace_image(image)
-                year = next(
-                    (
-                        meta.get("Value")
-                        for meta in epg_meta
-                        if meta.get("Key") == "year"
-                    ),
-                    None,
-                )
-                episode = next(
-                    (
-                        meta.get("Value")
-                        for meta in epg_meta
-                        if meta.get("Key") == "episode num"
-                    ),
-                    None,
-                )
-                season = next(
-                    (
-                        meta.get("Value")
-                        for meta in epg_meta
-                        if meta.get("Key") == "season number"
-                    ),
-                    None,
-                )
-                episode_name = next(
-                    (
-                        meta.get("Value")
-                        for meta in epg_meta
-                        if meta.get("Key") == "episode name"
-                    ),
-                    None,
-                )
-                epg_tags = programme.get("EPG_TAGS")
-                genres = [
-                    tag.get("Value") for tag in epg_tags if tag.get("Key") == "genre"
-                ]
-                countries = [
-                    tag.get("Value")
-                    for tag in epg_tags
-                    if tag.get("Key") == "country of production"
-                ]
-                actors = [
-                    tag.get("Value") for tag in epg_tags if tag.get("Key") == "actors"
-                ]
-                directors = [
-                    tag.get("Value") for tag in epg_tags if tag.get("Key") == "director"
-                ]
-                content_tags = [
-                    tag.get("Value")
-                    for tag in epg_tags
-                    if tag.get("Key") == "contentTags"
-                ]
-
-                programme = {
-                    "@start": start_date,
-                    "@stop": end_date,
-                    "@channel": epg_channel_id,
-                    "title": {"@lang": "hu", "#text": name},
-                    "desc": {"@lang": "hu", "#text": description},
-                }
-                catchup_url = f"plugin://{addon.getAddonInfo('id')}/?action=catchup&id={epg_programme_id}&cid={epg_ids[int(epg_channel_id)]}&start={start_date_unix}&end={end_date_unix}"
-                to_catchup = False
-                if static.recordable in content_tags:
-                    catchup_url += "&rec=1"
-                    to_catchup = True
-                else:
-                    catchup_url += "&rec=0"
-                if static.restartable in content_tags:
-                    catchup_url += "&res=1"
-                    to_catchup = True
-                else:
-                    catchup_url += "&res=0"
-                if to_catchup:
-                    programme["@catchup-id"] = catchup_url
-                if year:
-                    programme["date"] = year
-                # Prepare categories
-                categories = [{"@lang": "hu", "#text": genre} for genre in genres]
-                if categories:
-                    programme["category"] = categories
-                # Prepare countries
-                countries = [{"@lang": "hu", "#text": country} for country in countries]
-                if countries:
-                    programme["country"] = countries
-                # Prepare credits
-                credits = {}
-                actor_elements = [{"#text": actor} for actor in actors]
-                if actor_elements:
-                    credits["actor"] = actor_elements
-                director_elements = [{"#text": director} for director in directors]
-                if director_elements:
-                    credits["director"] = director_elements
-                if credits:
-                    programme["credits"] = credits
-                if image:
-                    programme["icon"] = {"@src": image}
-                if all([episode, season]):
-                    programme["episode-num"] = {
-                        "@system": "xmltv_ns",
-                        "#text": f"{int(season) - 1}.{int(episode) - 1}.",
-                    }
-                if episode_name:
-                    programme["sub-title"] = {"@lang": "hu", "#text": episode_name}
-                program_data.append(programme)
-    xmltv_data = {
-        "tv": {
-            "@generator-info-name": addon.getAddonInfo("name"),
-            "@generator-info-url": f"plugin://{addon.getAddonInfo('id')}/",
-            "channel": channel_data,
-            "programme": program_data,
-        }
-    }
-    # convert dict to XML and write to file
-    with open(path, "w", encoding="utf-8") as f:
-        xmltodict.unparse(xmltv_data, output=f, encoding="utf-8")
+                    episode = next(
+                        (
+                            meta.get("Value")
+                            for meta in epg_meta
+                            if meta.get("Key") == "episode num"
+                        ),
+                        None,
+                    )
+                    season = next(
+                        (
+                            meta.get("Value")
+                            for meta in epg_meta
+                            if meta.get("Key") == "season number"
+                        ),
+                        None,
+                    )
+                    episode_name = next(
+                        (
+                            meta.get("Value")
+                            for meta in epg_meta
+                            if meta.get("Key") == "episode name"
+                        ),
+                        None,
+                    )
+                    epg_tags = programme.get("EPG_TAGS")
+                    genres = [
+                        tag.get("Value")
+                        for tag in epg_tags
+                        if tag.get("Key") == "genre"
+                    ]
+                    countries = [
+                        tag.get("Value")
+                        for tag in epg_tags
+                        if tag.get("Key") == "country of production"
+                    ]
+                    actors = [
+                        tag.get("Value")
+                        for tag in epg_tags
+                        if tag.get("Key") == "actors"
+                    ]
+                    directors = [
+                        tag.get("Value")
+                        for tag in epg_tags
+                        if tag.get("Key") == "director"
+                    ]
+                    content_tags = [
+                        tag.get("Value")
+                        for tag in epg_tags
+                        if tag.get("Key") == "contentTags"
+                    ]
+                    catchup_url = f"plugin://{addon.getAddonInfo('id')}/?action=catchup&id={epg_programme_id}&cid={epg_ids[int(epg_channel_id)]}&start={start_date_unix}&end={end_date_unix}"
+                    to_catchup = False
+                    if static.recordable in content_tags:
+                        catchup_url += "&rec=1"
+                        to_catchup = True
+                    else:
+                        catchup_url += "&rec=0"
+                    if static.restartable in content_tags:
+                        catchup_url += "&res=1"
+                        to_catchup = True
+                    else:
+                        catchup_url += "&res=0"
+                    f.write(
+                        f'<programme start="{enc_xml(start_date)}" stop="{enc_xml(end_date)}" channel="{enc_xml(epg_channel_id)}"'
+                    )
+                    if to_catchup:
+                        f.write(f' catchup-id="{enc_xml(catchup_url)}"')
+                    f.write(">")
+                    f.write(f'<title lang="hu">{enc_xml(name)}</title>')
+                    f.write(f'<desc lang="hu">{enc_xml(description)}</desc>')
+                    if year:
+                        f.write(f"<date>{enc_xml(year)}</date>")
+                    # Prepare categories
+                    categories = [
+                        f'<category lang="hu">{enc_xml(genre)}</category>'
+                        for genre in genres
+                    ]
+                    if categories:
+                        f.write("".join(categories))
+                    # Prepare countries
+                    countries = [
+                        f'<country lang="hu">{enc_xml(country)}</country>'
+                        for country in countries
+                    ]
+                    if countries:
+                        f.write("".join(countries))
+                    # Prepare credits
+                    credits = {}
+                    actor_elements = [
+                        f"<actor>{enc_xml(actor)}</actor>" for actor in actors
+                    ]
+                    if actor_elements:
+                        credits["actor"] = actor_elements
+                    director_elements = [
+                        f"<director>{enc_xml(director)}</director>"
+                        for director in directors
+                    ]
+                    if director_elements:
+                        credits["director"] = director_elements
+                    if credits:
+                        f.write("".join(credits))
+                    if image:
+                        f.write(f'<icon src="{enc_xml(image)}" />')
+                    if all([episode, season]):
+                        f.write(
+                            f'<episode-num system="xmltv_ns">{enc_xml(str(int(season) - 1))}.{enc_xml(str(int(episode) - 1))}.</episode-num>'
+                        )
+                    if episode_name:
+                        f.write(
+                            f'<sub-title lang="hu">{enc_xml(episode_name)}</sub-title>'
+                        )
+                    f.write("</programme>")
+        f.write("</tv>")
+    # move temp file to final file
+    xbmcvfs.rename(temp_path, path)
     if addon.getSettingBool("epgnotifoncompletion"):
         dialog.notification(
             addon.getAddonInfo("name"),
