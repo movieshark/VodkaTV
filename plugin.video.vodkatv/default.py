@@ -901,8 +901,23 @@ def get_recordings(session: Session, page_num: int) -> None:
         channel_name = recording.get("ChannelName")
         epg_channel_id = recording.get("EPG_CHANNEL_ID")
         image = recording.get("PIC_URL")
+        images = recording.get("EPG_PICTURES")
+        cover_image = None
+        if images:
+            # sort images by PicWidth and PicHeight, prefer Ratio = bg
+            images.sort(
+                key=lambda x: (
+                    x.get("PicWidth", 0),
+                    x.get("PicHeight", 0),
+                    x.get("Ratio", "") == "bg",
+                ),
+                reverse=True,
+            )
+            cover_image = images[0].get("Url")
+            if isinstance(cover_image, str) and addon.getSetting("webenabled"):
+                # i have encountered a case where image was bytes
+                cover_image = replace_image(cover_image)
         if isinstance(image, str) and addon.getSettingBool("webenabled"):
-            # i encountered a case where the image url was bytes
             image = replace_image(image)
         epg_tags = recording.get("EPG_TAGS")
         start_time = get_tag(epg_tags, "startTime")
@@ -958,6 +973,7 @@ def get_recordings(session: Session, page_num: int) -> None:
             duration=duration,
             extra=str(epg_ids.get(epg_channel_id)),
             ctx_menu=ctx_menu,
+            fanart=cover_image,
         )
     # add pagination
     add_item(
