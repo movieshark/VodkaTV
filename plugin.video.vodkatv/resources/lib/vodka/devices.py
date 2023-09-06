@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from requests import Session
 
 from . import static
@@ -190,3 +192,32 @@ def delete_device(
             response.json()["result"]["error"]["code"],
         )
     return response.json()["result"]
+
+
+def get_streaming_devices(
+    _session: Session, gateway_phoenix_url: str, ks_token: str, **kwargs
+) -> Tuple[list, int]:
+    """
+    Get the currently streaming devices registered to the user
+
+    :param _session: requests.Session object
+    :param gateway_phoenix_url: The gateway phoenix url
+    :param ks_token: The ks token
+    :param kwargs: Optional arguments
+    :return: A tuple containing the streaming device list and the
+    total number of devices
+    """
+    # NOTE: call doesn't exist in official app
+    api_version = kwargs.get("api_version", static.api_version)
+    data = {
+        "apiVersion": api_version,
+        "ks": ks_token,
+        "filter": {
+            "objectType": f"{static.get_ott_platform_name()}StreamingDeviceFilter"
+        },
+    }
+    response = _session.post(
+        f"{gateway_phoenix_url}streamingdevice/action/list",
+        json=data,
+    )
+    return response.json()["result"]["objects"], response.json()["result"]["totalCount"]

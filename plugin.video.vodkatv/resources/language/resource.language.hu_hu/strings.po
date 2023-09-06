@@ -503,3 +503,11 @@ msgstr "Egy felvétel már ütemezve van erre az elemre."
 msgctxt "#30114"
 msgid "Unknown error occurred. Maybe the item you are trying to record isn't part of a series?"
 msgstr "Ismeretlen hiba történt. Lehet, hogy az elem, amit fel akarsz venni, nem sorozat?"
+
+msgctxt "#30115"
+msgid "Playing"
+msgstr "Lejátszás aktív"
+
+msgctxt "#30116"
+msgid "Type"
+msgstr "Típus"

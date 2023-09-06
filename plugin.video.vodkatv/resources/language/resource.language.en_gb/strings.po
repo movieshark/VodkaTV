@@ -487,3 +487,11 @@ msgstr ""
 msgctxt "#30114"
 msgid "Unknown error occurred. Maybe the item you are trying to record isn't part of a series?"
 msgstr ""
+
+msgctxt "#30115"
+msgid "Playing"
+msgstr ""
+
+msgctxt "#30116"
+msgid "Type"
+msgstr ""

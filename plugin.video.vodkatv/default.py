@@ -1004,6 +1004,12 @@ def device_list(session: Session) -> None:
     )
     # sort by lastActivityTime descending
     device_list.sort(key=lambda x: x.get("lastActivityTime", 0), reverse=True)
+    # request currently streaming devices
+    streaming_devices, _ = devices.get_streaming_devices(
+        session,
+        addon.getSetting("phoenixgw"),
+        addon.getSetting("kstoken"),
+    )
     # create a lookup table for brands
     brand_lookup = devices.get_brands(
         session,
@@ -1032,6 +1038,31 @@ def device_list(session: Session) -> None:
             f"{addon.getLocalizedString(30041)}: {household}\n"
             f"{addon.getLocalizedString(30042)}: {state}"
         )
+        asset_id, asset_type = next(
+            (
+                (
+                    streaming_device.get("asset", {}).get("id"),
+                    streaming_device.get("asset", {}).get("type"),
+                )
+                for streaming_device in streaming_devices
+                if streaming_device.get("udid") == device.get("udid")
+            ),
+            (None, None),
+        )
+        if asset_id:
+            name = f"[COLOR=red]{addon.getLocalizedString(30115)} | {name}[/COLOR]"
+            media = media_list.get_media_by_id(
+                session,
+                addon.getSetting("phoenixgw"),
+                addon.getSetting("kstoken"),
+                asset_id,
+            )
+            if media:
+                name += f" - {media.get('name')}"
+                description += (
+                    f"\n{addon.getLocalizedString(30115)}: {media.get('name')}"
+                    f"\n{addon.getLocalizedString(30116)}: {asset_type}"
+                )
         ctx_menu = []
         if brand in ["PC/MAC", "Android Tablet", "Android Smartphone"]:
             # NOTE: dumb whitelisting, but we don't want the STB and

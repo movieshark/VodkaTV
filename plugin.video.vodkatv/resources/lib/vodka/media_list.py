@@ -204,3 +204,33 @@ def get_recordings(
     )
     response.raise_for_status()
     return response.json()
+
+
+def get_media_by_id(
+    _session: Session, gateway_phoenix_url: str, ks_token: str, media_id: int, **kwargs
+) -> dict:
+    """
+    Returns a single media object by id if found, otherwise None
+
+    :param _session: requests session object
+    :param gateway_phoenix_url: gateway phoenix url
+    :param ks_token: ks token
+    :param media_id: media id
+    :param kwargs: optional arguments
+    :return: media object or None
+    """
+    # NOTE: call doesn't exist in official app
+    filter_obj = {
+        "kSql": f"(and media_id:'{media_id}')",
+        "objectType": f"{static.get_ott_platform_name()}SearchAssetFilter",
+    }
+    filtered_objects, _ = filter(
+        _session,
+        gateway_phoenix_url,
+        filter_obj,
+        ks_token,
+        page_idx=1,
+        page_size=1,
+        **kwargs,
+    )
+    return next(iter(filtered_objects or []), None)
