@@ -11,9 +11,9 @@ import xbmcvfs
 from default import (
     authenticate,
     get_available_files,
+    get_tag,
     prepare_session,
     replace_image,
-    get_tag,
 )
 from requests import Session
 from resources.lib.vodka import media_list, static

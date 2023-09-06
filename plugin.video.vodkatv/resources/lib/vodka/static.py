@@ -1,6 +1,7 @@
 from base64 import b64decode
 from functools import wraps
 
+import xbmcgui
 from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import unpad
 
@@ -26,7 +27,7 @@ npvr_types = {"Web_Secondary_HD": "NPVR_TYPE_968", "Web_Secondary_SD": "NPVR_TYP
 recordable = "w_npvr=1"
 restartable = "w_restart=1"
 
-cache = {}
+HOME_ID = 10000
 
 
 def cache_result(func):
@@ -36,12 +37,17 @@ def cache_result(func):
         cache_key = (func.__name__, args, frozenset(kwargs.items()))
 
         # Check if the result is already in the cache
-        if cache_key in cache:
-            return cache[cache_key]
+        cached_result = xbmcgui.Window(HOME_ID).getProperty(
+            "kodi.vodka.static." + str(cache_key)
+        )
+        if cached_result:
+            return cached_result
 
         # If not in cache, compute the result and store it
         result = func(*args, **kwargs)
-        cache[cache_key] = result
+        xbmcgui.Window(HOME_ID).setProperty(
+            "kodi.vodka.static." + str(cache_key), result
+        )
         return result
 
     return wrapper
