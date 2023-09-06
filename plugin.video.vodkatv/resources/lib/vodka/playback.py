@@ -65,7 +65,7 @@ def get_recording_playback_object(
     media_id: int,
     referrer: str = "NPVR_TYPE_968",
     **kwargs,
-):
+) -> dict:
     """
     Get the playback object for a recording. This is used to get the playback URL.
 
@@ -75,6 +75,7 @@ def get_recording_playback_object(
     :param media_id: The ID of the media item
     :param referrer: The referrer
     :param kwargs: Optional arguments
+    :return: The playback object
     """
     data = {
         "initObj": construct_init_obj(**kwargs),

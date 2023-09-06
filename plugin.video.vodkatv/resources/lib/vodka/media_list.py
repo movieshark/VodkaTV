@@ -99,7 +99,7 @@ def get_channel_list(
 
 def product_price_list(
     _session: Session, gateway_phoenix_url: str, file_ids: list, ks_token: str, **kwargs
-):
+) -> list:
     """
     Fetches the product price list from the API.
     Used to check whether the user has access to a particular item.
@@ -174,7 +174,7 @@ def get_recordings(
     page_size: int = 50,
     epg_channel_id: int = 0,
     **kwargs,
-):
+) -> list:
     """
     Fetches the recordings for a list of channels
 

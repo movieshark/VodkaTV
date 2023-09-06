@@ -11,7 +11,7 @@ from xmltodict import parse
 from . import static
 
 
-def get_token_exp(drm_token: str):
+def get_token_exp(drm_token: str) -> int:
     """
     Get the token expiration time from the DRM token.
 

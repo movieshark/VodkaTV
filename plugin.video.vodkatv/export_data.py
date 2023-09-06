@@ -190,7 +190,7 @@ def export_epg(
     to_time: int,
     utc_offset: int,
     kill_event: threading.Event = None,
-):
+) -> None:
     """
     Exports all EPG data between two timestamps to an XMLTV file.
 
@@ -496,7 +496,7 @@ class EPGUpdaterThread(threading.Thread):
         """Returns the addon handle"""
         return f"[{self.addon.getAddonInfo('name')}]"
 
-    def run(self):
+    def run(self) -> None:
         """
         EPG update thread's main loop.
         """
@@ -531,7 +531,7 @@ class EPGUpdaterThread(threading.Thread):
                     )
                     self.killed.wait(5)
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Sets stop event to the thread.
         """

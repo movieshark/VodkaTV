@@ -47,7 +47,7 @@ def cache_result(func):
     return wrapper
 
 
-def _decrypt_string(input: str):
+def _decrypt_string(input: str) -> str:
     """
     Decrypts a string using AES-128-CBC with PKCS7 padding
 
@@ -72,3 +72,4 @@ def get_ott_platform_name() -> str:
 
 if __name__ == "__main__":
     print("get_config_js:\t", get_config_js())
+    print("get_ott_platform_name:\t", get_ott_platform_name())
