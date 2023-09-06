@@ -6,7 +6,6 @@ from uuid import uuid4
 from Cryptodome.Cipher import PKCS1_v1_5
 from Cryptodome.PublicKey import RSA
 from requests import Session
-from xmltodict import parse
 
 from . import static
 
@@ -102,8 +101,8 @@ def get_base_domain(session: Session, initxml_url: str) -> str:
     """
     response = session.get(initxml_url)
     response.raise_for_status()
-    xml_data = parse(response.text)
-    return xml_data["INIT"]["dms_url"]
+    # match between <dms_url></dms_url>
+    return re.search(r"<dms_url>(.*?)</dms_url>", response.text).group(1)
 
 
 def extract_config_js_values(session: Session) -> dict:
