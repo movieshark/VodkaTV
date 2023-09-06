@@ -542,6 +542,21 @@ def _gen_mgr_params(playback_obj: list, asset_type: str) -> str:
     return urlencode(params)
 
 
+def _get_tag(tags: list, key: str) -> str:
+    """
+    Gets the tag value from the list of tags.
+
+    :param tags: The list of tags.
+    :param key: The tag key.
+    :return: The tag value.
+    """
+    tag = next(
+        (tag["Value"] for tag in tags if tag["Key"] == key),
+        None,
+    )
+    return tag
+
+
 def play(
     session: Session, media_id: int, asset_file_id: int, asset_type: str = "media"
 ) -> None:
@@ -890,42 +905,15 @@ def get_recordings(session: Session, page_num: int) -> None:
             # i encountered a case where the image url was bytes
             image = replace_image(image)
         epg_tags = recording.get("EPG_TAGS")
-        start_time = next(
-            (tag["Value"] for tag in epg_tags if tag["Key"] == "startTime"),
-            None,
-        )
-        end_time = next(
-            (tag["Value"] for tag in epg_tags if tag["Key"] == "endTime"),
-            None,
-        )
-        booking_time = next(
-            (tag["Value"] for tag in epg_tags if tag["Key"] == "bookingTime"),
-            None,
-        )
-        delete_time = next(
-            (tag["Value"] for tag in epg_tags if tag["Key"] == "deleteTime"),
-            None,
-        )
-        duration = next(
-            (tag["Value"] for tag in epg_tags if tag["Key"] == "duration"),
-            None,
-        )
-        year = next(
-            (tag["Value"] for tag in epg_tags if tag["Key"] == "year"),
-            None,
-        )
-        series_name = next(
-            (tag["Value"] for tag in epg_tags if tag["Key"] == "seriesName"),
-            None,
-        )
-        season_number = next(
-            (tag["Value"] for tag in epg_tags if tag["Key"] == "seasonNumber"),
-            None,
-        )
-        episode_number = next(
-            (tag["Value"] for tag in epg_tags if tag["Key"] == "episode"),
-            None,
-        )
+        start_time = _get_tag(epg_tags, "startTime")
+        end_time = _get_tag(epg_tags, "endTime")
+        booking_time = _get_tag(epg_tags, "bookingTime")
+        delete_time = _get_tag(epg_tags, "deleteTime")
+        duration = _get_tag(epg_tags, "duration")
+        year = _get_tag(epg_tags, "year")
+        series_name = _get_tag(epg_tags, "seriesName")
+        season_number = _get_tag(epg_tags, "seasonNumber")
+        episode_number = _get_tag(epg_tags, "episode")
         content_tags = next(
             (tag["Value"] for tag in epg_tags if tag["Key"] == "contentTags"),
             "",
