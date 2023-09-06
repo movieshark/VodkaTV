@@ -8,7 +8,13 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 import xbmcvfs
-from default import authenticate, get_available_files, prepare_session, replace_image
+from default import (
+    authenticate,
+    get_available_files,
+    prepare_session,
+    replace_image,
+    get_tag,
+)
 from requests import Session
 from resources.lib.vodka import media_list, static
 
@@ -352,38 +358,10 @@ def export_epg(
                         if isinstance(image, str) and addon.getSetting("webenabled"):
                             # i have encountered a case where image was bytes
                             image = replace_image(image)
-                    year = next(
-                        (
-                            meta.get("Value")
-                            for meta in epg_meta
-                            if meta.get("Key") == "year"
-                        ),
-                        None,
-                    )
-                    episode = next(
-                        (
-                            meta.get("Value")
-                            for meta in epg_meta
-                            if meta.get("Key") == "episode num"
-                        ),
-                        None,
-                    )
-                    season = next(
-                        (
-                            meta.get("Value")
-                            for meta in epg_meta
-                            if meta.get("Key") == "season number"
-                        ),
-                        None,
-                    )
-                    episode_name = next(
-                        (
-                            meta.get("Value")
-                            for meta in epg_meta
-                            if meta.get("Key") == "episode name"
-                        ),
-                        None,
-                    )
+                    year = get_tag(epg_meta, "year")
+                    episode = get_tag(epg_meta, "episode num")
+                    season = get_tag(epg_meta, "season number")
+                    episode_name = get_tag(epg_meta, "episode name")
                     epg_tags = programme.get("EPG_TAGS")
                     genres = [
                         tag.get("Value")

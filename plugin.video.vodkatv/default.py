@@ -542,7 +542,7 @@ def _gen_mgr_params(playback_obj: list, asset_type: str) -> str:
     return urlencode(params)
 
 
-def _get_tag(tags: list, key: str) -> str:
+def get_tag(tags: list, key: str) -> str:
     """
     Gets the tag value from the list of tags.
 
@@ -905,15 +905,15 @@ def get_recordings(session: Session, page_num: int) -> None:
             # i encountered a case where the image url was bytes
             image = replace_image(image)
         epg_tags = recording.get("EPG_TAGS")
-        start_time = _get_tag(epg_tags, "startTime")
-        end_time = _get_tag(epg_tags, "endTime")
-        booking_time = _get_tag(epg_tags, "bookingTime")
-        delete_time = _get_tag(epg_tags, "deleteTime")
-        duration = _get_tag(epg_tags, "duration")
-        year = _get_tag(epg_tags, "year")
-        series_name = _get_tag(epg_tags, "seriesName")
-        season_number = _get_tag(epg_tags, "seasonNumber")
-        episode_number = _get_tag(epg_tags, "episode")
+        start_time = get_tag(epg_tags, "startTime")
+        end_time = get_tag(epg_tags, "endTime")
+        booking_time = get_tag(epg_tags, "bookingTime")
+        delete_time = get_tag(epg_tags, "deleteTime")
+        duration = get_tag(epg_tags, "duration")
+        year = get_tag(epg_tags, "year")
+        series_name = get_tag(epg_tags, "seriesName")
+        season_number = get_tag(epg_tags, "seasonNumber")
+        episode_number = get_tag(epg_tags, "episode")
         content_tags = next(
             (tag["Value"] for tag in epg_tags if tag["Key"] == "contentTags"),
             "",
