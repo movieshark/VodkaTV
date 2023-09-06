@@ -442,3 +442,36 @@ msgstr ""
 msgctxt "#30103"
 msgid "You have reached the end of the list."
 msgstr ""
+
+msgctxt "#30104"
+msgid "Delete recording"
+msgstr ""
+
+msgctxt "#30105"
+msgid "Are you absolutely sure you want to delete this recording?"
+"[CR][B]This action cannot be undone![/B]"
+msgstr ""
+
+msgctxt "#30106"
+msgid "Recording deleted!"
+msgstr ""
+
+msgctxt "#30107"
+msgid "Pick your poison!"
+msgstr ""
+
+msgctxt "#30108"
+msgid "Play it!"
+msgstr ""
+
+msgctxt "#30109"
+msgid "Record it!"
+msgstr ""
+
+msgctxt "#30110"
+msgid "Record series!"
+msgstr ""
+
+msgctxt "#30111"
+msgid "Recording scheduled successfully!"
+msgstr ""

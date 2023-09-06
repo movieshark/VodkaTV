@@ -13,7 +13,15 @@ from requests import HTTPError, Session
 from resources.lib.utils import static as utils_static
 from resources.lib.utils import unix_to_date
 from resources.lib.utils.dns_resolver import resolve_domain
-from resources.lib.vodka import devices, enums, login, media_list, misc, static
+from resources.lib.vodka import (
+    devices,
+    enums,
+    login,
+    media_list,
+    misc,
+    recording,
+    static,
+)
 from resources.lib.vodka.playback import (
     PlaybackException,
     get_playback_obj,
@@ -929,6 +937,12 @@ def get_recordings(session: Session, page_num: int) -> None:
             description += f"\n{addon.getLocalizedString(30101)}: {unix_to_date(int(booking_time) // 1000)}"
         if delete_time:
             description += f"\n{addon.getLocalizedString(30102)}: {unix_to_date(int(delete_time) // 1000)}"
+        ctx_menu = [
+            (
+                addon.getLocalizedString(30104),
+                f"RunPlugin({argv[0]}?action=del_recording&recording_id={recording_id})",
+            )
+        ]
         # add item
         add_item(
             plugin_prefix=argv[0],
@@ -947,6 +961,7 @@ def get_recordings(session: Session, page_num: int) -> None:
             show_name=series_name,
             duration=duration,
             extra=str(epg_ids.get(epg_channel_id)),
+            ctx_menu=ctx_menu,
         )
     # add pagination
     add_item(
@@ -1116,8 +1131,59 @@ def catchup(
     :param restartable: whether the item is restartable or not
     :return: None
     """
+    dialog = xbmcgui.Dialog()
     # if its recordable and the title is live now or was in the past, then we can play it
     if recordable and int(start) <= time():
+        # if it is live now, ask if they want to record
+        if time() <= int(stop):
+            choice = dialog.yesnocustom(
+                addon_name,
+                addon.getLocalizedString(30107),
+                customlabel=addon.getLocalizedString(30108),
+                nolabel=addon.getLocalizedString(30109),
+                yeslabel=addon.getLocalizedString(30110),
+            )
+            if choice == 0:  # record
+                try:
+                    recording.record_asset(
+                        session,
+                        addon.getSetting("jsonpostgw"),
+                        media_id,
+                        api_user=addon.getSetting("apiuser"),
+                        api_pass=addon.getSetting("apipass"),
+                        domain_id=addon.getSetting("domainid"),
+                        site_guid=addon.getSetting("siteguid"),
+                        platform=addon.getSetting("platform"),
+                        ud_id=addon.getSetting("devicekey"),
+                        token=addon.getSetting("kstoken"),
+                    )
+                except recording.RecordingException as e:
+                    return dialog.ok(
+                        addon_name,
+                        addon.getLocalizedString(30025).format(message=e.status),
+                    )
+                return dialog.ok(addon_name, addon.getLocalizedString(30111))
+            elif choice == 1:  # record series
+                try:
+                    recording.record_series_by_program_id(
+                        session,
+                        addon.getSetting("jsonpostgw"),
+                        media_id,
+                        api_user=addon.getSetting("apiuser"),
+                        api_pass=addon.getSetting("apipass"),
+                        domain_id=addon.getSetting("domainid"),
+                        site_guid=addon.getSetting("siteguid"),
+                        platform=addon.getSetting("platform"),
+                        ud_id=addon.getSetting("devicekey"),
+                        token=addon.getSetting("kstoken"),
+                    )
+                except recording.RecordingException as e:
+                    return dialog.ok(
+                        addon_name,
+                        addon.getLocalizedString(30025).format(message=e.status),
+                    )
+                return dialog.ok(addon_name, addon.getLocalizedString(30111))
+            # if the user cancels or presses the custom button, we can play
         play(session, media_id, asset_file_id, asset_type="epg")
         return
     # if its restartable and the title is live now, then we can play it
@@ -1127,13 +1193,60 @@ def catchup(
     # if the title was in the past, it was restartable, but it's not recordable,
     #  then we can't play it, show a dialog
     elif restartable and not recordable and int(stop) < time():
-        dialog = xbmcgui.Dialog()
         dialog.ok(addon_name, addon.getLocalizedString(30093))
         return
     # if title is in the future, then we can't play it, show a dialog
     if int(start) > time():
         dialog = xbmcgui.Dialog()
-        dialog.ok(addon_name, addon.getLocalizedString(30092))
+        if recordable:
+            choice = dialog.yesno(
+                addon_name,
+                addon.getLocalizedString(30092),
+                nolabel=addon.getLocalizedString(30109),
+                yeslabel=addon.getLocalizedString(30110),
+            )
+            if choice == 0:  # record
+                try:
+                    recording.record_asset(
+                        session,
+                        addon.getSetting("jsonpostgw"),
+                        media_id,
+                        api_user=addon.getSetting("apiuser"),
+                        api_pass=addon.getSetting("apipass"),
+                        domain_id=addon.getSetting("domainid"),
+                        site_guid=addon.getSetting("siteguid"),
+                        platform=addon.getSetting("platform"),
+                        ud_id=addon.getSetting("devicekey"),
+                        token=addon.getSetting("kstoken"),
+                    )
+                except recording.RecordingException as e:
+                    return dialog.ok(
+                        addon_name,
+                        addon.getLocalizedString(30025).format(message=e.status),
+                    )
+                return dialog.ok(addon_name, addon.getLocalizedString(30111))
+            elif choice == 1:  # record series
+                try:
+                    recording.record_series_by_program_id(
+                        session,
+                        addon.getSetting("jsonpostgw"),
+                        media_id,
+                        api_user=addon.getSetting("apiuser"),
+                        api_pass=addon.getSetting("apipass"),
+                        domain_id=addon.getSetting("domainid"),
+                        site_guid=addon.getSetting("siteguid"),
+                        platform=addon.getSetting("platform"),
+                        ud_id=addon.getSetting("devicekey"),
+                        token=addon.getSetting("kstoken"),
+                    )
+                except recording.RecordingException as e:
+                    return dialog.ok(
+                        addon_name,
+                        addon.getLocalizedString(30025).format(message=e.status),
+                    )
+                return dialog.ok(addon_name, addon.getLocalizedString(30111))
+        else:
+            dialog.ok(addon_name, addon.getLocalizedString(30092))
 
 
 def export_chanlist(session: Session) -> None:
@@ -1150,6 +1263,36 @@ def export_chanlist(session: Session) -> None:
 
     export_data.export_channel_list(addon, session)
     exit()
+
+
+def delete_recording(session: Session, recording_id: int) -> None:
+    """
+    Delete a recording.
+
+    :param session: requests session
+    :param recording_id: recording id
+    :return: None
+    """
+    dialog = xbmcgui.Dialog()
+    if dialog.yesno(addon_name, addon.getLocalizedString(30105)):
+        try:
+            recording.delete_asset_recording(
+                session,
+                addon.getSetting("jsonpostgw"),
+                recording_id,
+                api_user=addon.getSetting("apiuser"),
+                api_pass=addon.getSetting("apipass"),
+                domain_id=addon.getSetting("domainid"),
+                site_guid=addon.getSetting("siteguid"),
+                platform=addon.getSetting("platform"),
+                ud_id=addon.getSetting("devicekey"),
+                token=addon.getSetting("kstoken"),
+            )
+        except recording.RecordingException as e:
+            dialog.ok(addon_name, addon.getLocalizedString(30025).format(message=e))
+            return
+        dialog.ok(addon_name, addon.getLocalizedString(30106))
+        xbmc.executebuiltin("Container.Refresh")
 
 
 def about_dialog() -> None:
@@ -1212,5 +1355,7 @@ if __name__ == "__main__":
             params.get("rec", 0) == "1",
             params.get("res", 0) == "1",
         )
+    elif action == "del_recording":
+        delete_recording(session, params["recording_id"])
     elif action == "about":
         about_dialog()

@@ -457,3 +457,37 @@ msgstr "Törlés időpontja"
 msgctxt "#30103"
 msgid "You have reached the end of the list."
 msgstr "Elérted a lista végét."
+
+msgctxt "#30104"
+msgid "Delete recording"
+msgstr "Felvétel törlése"
+
+msgctxt "#30105"
+msgid "Are you absolutely sure you want to delete this recording?"
+"[CR][B]This action cannot be undone![/B]"
+msgstr "Biztos vagy benne, hogy törölni szeretnéd ezt a felvételt?"
+"[CR][B]Ez a művelet nem vonható vissza![/B]"
+
+msgctxt "#30106"
+msgid "Recording deleted!"
+msgstr "Felvétel törölve!"
+
+msgctxt "#30107"
+msgid "Pick your poison!"
+msgstr "Válassz!"
+
+msgctxt "#30108"
+msgid "Play it!"
+msgstr "Lejátszás!"
+
+msgctxt "#30109"
+msgid "Record it!"
+msgstr "Felvétel!"
+
+msgctxt "#30110"
+msgid "Record series!"
+msgstr "Sorozat felvétele!"
+
+msgctxt "#30111"
+msgid "Recording scheduled successfully!"
+msgstr "Felvétel sikeresen beütemezve!"
