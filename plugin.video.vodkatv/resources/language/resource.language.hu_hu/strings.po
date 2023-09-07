@@ -511,3 +511,19 @@ msgstr "Lejátszás aktív"
 msgctxt "#30116"
 msgid "Type"
 msgstr "Típus"
+
+msgctxt "#30117"
+msgid "DNS"
+msgstr ""
+
+msgctxt "#30118"
+msgid "DNS server"
+msgstr "DNS szerver"
+
+msgctxt "#30119"
+msgid "Cloudflare DNS"
+msgstr ""
+
+msgctxt "#30120"
+msgid "Google DNS"
+msgstr ""

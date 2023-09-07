@@ -48,6 +48,19 @@
                     <control type="spinner" format="string" />
                 </setting>
             </group>
+            <group id="9" label="30117">
+                <setting id="dohaddress" type="string" label="30118" help="">
+                    <level>0</level>
+                    <default>https://cloudflare-dns.com/dns-query</default>
+                    <constraints>
+                        <options>
+                            <option label="30119">https://cloudflare-dns.com/dns-query</option>
+                            <option label="30120">https://dns.google/resolve</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string" />
+                </setting>
+            </group>
         </category>
         <category id="export" label="30057">
             <group id="5" label="30058">

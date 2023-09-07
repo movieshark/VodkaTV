@@ -630,7 +630,7 @@ def play(
     manifest_url = urlparse(playback_obj.get("url"))
     # extract host from domain
     hostname = manifest_url.hostname
-    ip = resolve_domain(hostname)
+    ip = resolve_domain(addon.getSetting("dohaddress"), hostname)
     if not ip:
         xbmcgui.Dialog().ok(
             addon_name,
@@ -766,7 +766,7 @@ def play_recording(session: Session, recording_id: int, media_id: list) -> None:
     manifest_url = urlparse(main_url)
     # extract host from domain
     hostname = manifest_url.hostname
-    ip = resolve_domain(hostname)
+    ip = resolve_domain(addon.getSetting("dohaddress"), hostname)
     if not ip:
         xbmcgui.Dialog().ok(
             addon_name,
