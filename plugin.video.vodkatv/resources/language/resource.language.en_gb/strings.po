@@ -535,3 +535,7 @@ msgstr ""
 msgctxt "#30126"
 msgid "Nothing (fast)"
 msgstr ""
+
+msgctxt "#30127"
+msgid "Show all channels"
+msgstr ""

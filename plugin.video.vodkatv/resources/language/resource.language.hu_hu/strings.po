@@ -555,3 +555,7 @@ msgstr "Csak EPG"
 msgctxt "#30126"
 msgid "Nothing (fast)"
 msgstr "Semmi (gyorsabb)"
+
+msgctxt "#30127"
+msgid "Show all channels"
+msgstr "Minden csatorna mutatása"

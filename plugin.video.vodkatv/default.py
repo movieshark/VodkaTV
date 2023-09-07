@@ -457,10 +457,11 @@ def channel_list(session: Session) -> None:
     )
     epgs = []
     if addon.getSettingInt("epgonchannels") != 4:  # EPG is enabled
-        # drop channels that are not available
-        for channel_id, media_file_id in list(potential_file_ids.items()):
-            if int(media_file_id) not in available_file_ids:
-                potential_file_ids.pop(channel_id)
+        if not addon.getSettingBool("showallchannels"):
+            # drop channels that are not available
+            for channel_id, media_file_id in list(potential_file_ids.items()):
+                if int(media_file_id) not in available_file_ids:
+                    potential_file_ids.pop(channel_id)
         # get EPG data in bulk
         chunk_size = addon.getSettingInt("epgfetchinonereq")
         for i in range(0, len(potential_file_ids), chunk_size):
@@ -505,9 +506,14 @@ def channel_list(session: Session) -> None:
         ]
         # sort media files that contain 'HD' earlier
         media_files.sort(key=lambda x: x.get("type").lower().find("hd"), reverse=True)
-        if not media_files:
+        playable = False
+        if not media_files and not addon.getSettingBool("showallchannels"):
             continue
-        media_file = media_files[0]["id"]
+        elif not media_files and addon.getSettingBool("showallchannels"):
+            name = f"[COLOR red]{name}[/COLOR]"  # channel not subscribed
+        else:
+            playable = True
+            media_file = media_files[0]["id"]
         epg_id = channel.get("metas", {}).get("EPG_GUID_ID", {}).get("value")
         description = ""
         if addon.getSettingInt("epgonchannels") != 4:  # EPG is enabled
@@ -624,13 +630,13 @@ def channel_list(session: Session) -> None:
             plugin_prefix=argv[0],
             handle=argv[1],
             name=name,
-            action="play_channel",
+            action="play_channel" if playable else "dummy",
             is_directory=False,
             id=channel_id,
             icon=image,
             is_livestream=True,
             refresh=True,
-            extra=media_file,
+            extra=media_file if playable else None,
             description=description,
         )
     xbmcplugin.endOfDirectory(int(argv[1]))
