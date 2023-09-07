@@ -36,18 +36,15 @@ def add_item(plugin_prefix, handle, name, action, is_directory, **kwargs) -> Non
     """
     Adds an item to the Kodi listing
     """
-    url = f"{plugin_prefix}?action={action}&name={quote(name)}"
+    url = f"{plugin_prefix}?action={action}"
     item = xbmcgui.ListItem(label=name)
     info_labels = {}
     if kwargs.get("description"):
-        url += "&descr=%s" % (quote(kwargs["description"]))
         info_labels.update({"plot": kwargs["description"]})
     arts = {}
     if kwargs.get("icon"):
-        url += "&icon=%s" % (quote(kwargs["icon"]))
         arts.update({"thumb": kwargs["icon"], "icon": kwargs["icon"]})
     if kwargs.get("fanart"):
-        url += "&fanart=%s" % (quote(kwargs["fanart"]))
         arts.update({"fanart": kwargs["fanart"]})
         item.setProperty("Fanart_Image", kwargs["fanart"])
     if kwargs.get("type"):
@@ -56,34 +53,24 @@ def add_item(plugin_prefix, handle, name, action, is_directory, **kwargs) -> Non
         url += "&id=%s" % (kwargs["id"])
     if kwargs.get("year"):
         info_labels.update({"year": kwargs["year"]})
-        url += "&year=%s" % (kwargs["year"])
     if kwargs.get("episode"):
         info_labels.update({"episode": kwargs["episode"]})
-        url += "&episode=%s" % (kwargs["episode"])
     if kwargs.get("season"):
         info_labels.update({"season": kwargs["season"]})
-        url += "&season=%s" % (kwargs["season"])
     if kwargs.get("show_name"):
         info_labels.update({"tvshowtitle": kwargs["show_name"]})
-        url += "&show_name=%s" % (quote(kwargs["show_name"]))
     if kwargs.get("genre"):
         info_labels.update({"genre": kwargs["genre"]})
-        url += "&genre=%s" % (quote(dumps(kwargs["genre"])))
     if kwargs.get("country"):
         info_labels.update({"country": kwargs["country"]})
-        url += "&country=%s" % (quote(dumps(kwargs["country"])))
     if kwargs.get("director"):
         info_labels.update({"director": kwargs["director"]})
-        url += "&director=%s" % (quote(dumps(kwargs["director"])))
     if kwargs.get("cast"):
         info_labels.update({"cast": kwargs["cast"]})
-        url += "&cast=%s" % (quote(dumps(kwargs["cast"])))
     if kwargs.get("mpaa"):
         info_labels.update({"mpaa": kwargs["mpaa"]})
-        url += "&mpaa=%s" % (quote(kwargs["mpaa"]))
     if kwargs.get("duration"):
         info_labels.update({"duration": kwargs["duration"]})
-        url += "&duration=%s" % (kwargs["duration"])
     if kwargs.get("extra"):
         url += "&extra=%s" % (kwargs["extra"])
     if kwargs.get("is_livestream"):
