@@ -527,3 +527,31 @@ msgstr ""
 msgctxt "#30120"
 msgid "Google DNS"
 msgstr ""
+
+msgctxt "#30121"
+msgid "Adguard DNS"
+msgstr ""
+
+msgctxt "#30121"
+msgid "Show EPG on Channels page"
+msgstr "EPG mutatása a Csatornák fülön"
+
+msgctxt "#30122"
+msgid "Description & EPG"
+msgstr "Leírás és EPG"
+
+msgctxt "#30123"
+msgid "EPG & Description"
+msgstr "EPG és leírás"
+
+msgctxt "#30124"
+msgid "Only Description"
+msgstr "Csak leírás"
+
+msgctxt "#30125"
+msgid "Only EPG"
+msgstr "Csak EPG"
+
+msgctxt "#30126"
+msgid "Nothing (fast)"
+msgstr "Semmi (gyorsabb)"

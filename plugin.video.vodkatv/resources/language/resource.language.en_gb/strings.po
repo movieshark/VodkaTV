@@ -511,3 +511,27 @@ msgstr ""
 msgctxt "#30120"
 msgid "Google DNS"
 msgstr ""
+
+msgctxt "#30121"
+msgid "Show EPG on Channels page"
+msgstr ""
+
+msgctxt "#30122"
+msgid "Description & EPG"
+msgstr ""
+
+msgctxt "#30123"
+msgid "EPG & Description"
+msgstr ""
+
+msgctxt "#30124"
+msgid "Only Description"
+msgstr ""
+
+msgctxt "#30125"
+msgid "Only EPG"
+msgstr ""
+
+msgctxt "#30126"
+msgid "Nothing (fast)"
+msgstr ""

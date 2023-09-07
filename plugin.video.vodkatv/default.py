@@ -27,6 +27,7 @@ from resources.lib.vodka.playback import (
     get_playback_obj,
     get_recording_playback_object,
 )
+from resources.lib.utils import voda_to_epg_time
 
 addon = xbmcaddon.Addon()
 addon_name = addon.getAddonInfo("name")
@@ -432,7 +433,8 @@ def channel_list(session: Session) -> None:
             )
         )
     )
-    available_file_ids = []
+    potential_file_ids = {}
+    no_epg_list = []
     for channel in channels:
         media_files = [
             media_file
@@ -444,9 +446,41 @@ def channel_list(session: Session) -> None:
         if not media_files:
             continue
         media_file = media_files[0]["id"]
-        available_file_ids.append(str(media_file))
-    # check which channels are available
-    available_file_ids = get_available_files(session, available_file_ids)
+        epg_id = channel.get("metas", {}).get("EPG_GUID_ID", {}).get("value")
+        if not epg_id:
+            no_epg_list.append(str(media_file))
+        else:
+            potential_file_ids[epg_id] = str(media_file)
+    # check which channels are available also from non-EPG sources
+    available_file_ids = get_available_files(
+        session, list(potential_file_ids.values()) + no_epg_list
+    )
+    epgs = []
+    if addon.getSettingInt("epgonchannels") != 4:  # EPG is enabled
+        # drop channels that are not available
+        for channel_id, media_file_id in list(potential_file_ids.items()):
+            if int(media_file_id) not in available_file_ids:
+                potential_file_ids.pop(channel_id)
+        # get EPG data in bulk
+        chunk_size = addon.getSettingInt("epgfetchinonereq")
+        for i in range(0, len(potential_file_ids), chunk_size):
+            chunk = list(potential_file_ids.keys())[i : i + chunk_size]
+            channel_programs = media_list.get_epg_by_channel_ids(
+                session,
+                addon.getSetting("jsonpostgw"),
+                chunk,
+                0,
+                1,
+                2,
+                api_user=addon.getSetting("apiuser"),
+                api_pass=addon.getSetting("apipass"),
+                domain_id=addon.getSetting("domainid"),
+                site_guid=addon.getSetting("siteguid"),
+                platform=addon.getSetting("platform"),
+                ud_id=addon.getSetting("devicekey"),
+            )
+            # append the programs to the EPG list
+            epgs.extend(channel_programs)
     # TODO: get API version
     for channel in channels:
         channel_id = channel.get("id")
@@ -474,6 +508,118 @@ def channel_list(session: Session) -> None:
         if not media_files:
             continue
         media_file = media_files[0]["id"]
+        epg_id = channel.get("metas", {}).get("EPG_GUID_ID", {}).get("value")
+        description = ""
+        if addon.getSettingInt("epgonchannels") != 4:  # EPG is enabled
+            epg = next(
+                (
+                    epg.get("EPGChannelProgrammeObject", {})
+                    for epg in epgs
+                    if epg.get("EPG_CHANNEL_ID") == str(epg_id)
+                ),
+                None,
+            )
+            if epg and addon.getSettingInt("epgonchannels") == 0:
+                # current program description and
+                # all next programs with start time and title
+
+                # find current program
+                current_program = next(
+                    (
+                        program
+                        for program in epg
+                        if voda_to_epg_time(program.get("START_DATE"))[1]
+                        < time()
+                        < voda_to_epg_time(program.get("END_DATE"))[1]
+                    ),
+                    None,
+                )
+                if current_program:
+                    name += f"[CR][COLOR gray]{current_program.get('NAME')}[/COLOR]"
+                    description += current_program.get("DESCRIPTION") + "\n\n"
+                # find next programs
+                next_programs = [
+                    program
+                    for program in epg
+                    if voda_to_epg_time(program.get("START_DATE"))[1] > time()
+                ]
+                for program in next_programs:
+                    # add start time in bold and title
+                    description += (
+                        "[B]"
+                        + unix_to_date(voda_to_epg_time(program.get("START_DATE"))[1])
+                        + "[/B] "
+                        + program.get("NAME")
+                        + "\n"
+                    )
+            elif (
+                epg and addon.getSettingInt("epgonchannels") == 1
+            ):  # next programs first, then current
+                # find next programs
+                next_programs = [
+                    program
+                    for program in epg
+                    if voda_to_epg_time(program.get("START_DATE"))[1] > time()
+                ]
+                for program in next_programs:
+                    # add start time in bold and title
+                    description += (
+                        "[B]"
+                        + unix_to_date(voda_to_epg_time(program.get("START_DATE"))[1])
+                        + "[/B] "
+                        + program.get("NAME")
+                        + "\n"
+                    )
+                description += "\n"
+                # find current program
+                current_program = next(
+                    (
+                        program
+                        for program in epg
+                        if voda_to_epg_time(program.get("START_DATE"))[1]
+                        < time()
+                        < voda_to_epg_time(program.get("END_DATE"))[1]
+                    ),
+                    None,
+                )
+                if current_program:
+                    name += f"[CR][COLOR gray]{current_program.get('NAME')}[/COLOR]"
+                    description += current_program.get("DESCRIPTION") + "\n"
+            elif (
+                epg and addon.getSettingInt("epgonchannels") == 2
+            ):  # only current program
+                # find current program
+                current_program = next(
+                    (
+                        program
+                        for program in epg
+                        if voda_to_epg_time(program.get("START_DATE"))[1]
+                        < time()
+                        < voda_to_epg_time(program.get("END_DATE"))[1]
+                    ),
+                    None,
+                )
+                if current_program:
+                    name += f"[CR][COLOR gray]{current_program.get('NAME')}[/COLOR]"
+                    description += current_program.get("DESCRIPTION")
+            elif (
+                epg and addon.getSettingInt("epgonchannels") == 3
+            ):  # only next programs
+                # find next programs
+                next_programs = [
+                    program
+                    for program in epg
+                    if voda_to_epg_time(program.get("START_DATE"))[1] > time()
+                ]
+                for program in next_programs:
+                    # add start time in bold and title
+                    description += (
+                        "[B]"
+                        + unix_to_date(voda_to_epg_time(program.get("START_DATE"))[1])
+                        + "[/B] "
+                        + program.get("NAME")
+                        + "\n"
+                    )
         add_item(
             plugin_prefix=argv[0],
             handle=argv[1],
@@ -485,6 +631,7 @@ def channel_list(session: Session) -> None:
             is_livestream=True,
             refresh=True,
             extra=media_file,
+            description=description,
         )
     xbmcplugin.endOfDirectory(int(argv[1]))
     xbmcplugin.setContent(int(argv[1]), "videos")
