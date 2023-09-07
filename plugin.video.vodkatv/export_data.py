@@ -16,8 +16,8 @@ from default import (
     replace_image,
 )
 from requests import Session
-from resources.lib.vodka import media_list, static
 from resources.lib.utils import voda_to_epg_time
+from resources.lib.vodka import media_list, static
 
 
 def get_path(addon: xbmcaddon.Addon(), is_epg: bool = False) -> str:

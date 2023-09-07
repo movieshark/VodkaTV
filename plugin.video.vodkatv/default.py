@@ -11,7 +11,7 @@ import xbmcgui
 import xbmcplugin
 from requests import HTTPError, Session
 from resources.lib.utils import static as utils_static
-from resources.lib.utils import unix_to_date
+from resources.lib.utils import unix_to_date, voda_to_epg_time
 from resources.lib.utils.dns_resolver import resolve_domain
 from resources.lib.vodka import (
     devices,
@@ -27,7 +27,6 @@ from resources.lib.vodka.playback import (
     get_playback_obj,
     get_recording_playback_object,
 )
-from resources.lib.utils import voda_to_epg_time
 
 addon = xbmcaddon.Addon()
 addon_name = addon.getAddonInfo("name")
