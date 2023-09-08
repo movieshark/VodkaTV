@@ -615,3 +615,15 @@ msgstr "Eszköz sikeresen átnevezve!"
 msgctxt "#30140"
 msgid "Enter a new name for this device"
 msgstr "Add meg az eszköz új nevét"
+
+msgctxt "#30141"
+msgid "Fetching the active subscriptions..."
+msgstr "Aktív előfizetések lekérése..."
+
+msgctxt "#30142"
+msgid "No TV subscription found!"
+msgstr "Nem található TV előfizetés!"
+
+msgctxt "#30143"
+msgid "We have found multiple TV subscriptions. Please select one."
+msgstr "Több TV előfizetést találtunk. Kérlek válassz egyet."

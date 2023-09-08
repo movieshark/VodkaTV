@@ -87,6 +87,27 @@ def publicapi_login(session: Session, url: str, client_id: str, assertion: str) 
         "Accept-Language": "hu",
     }
     response = session.post(url, data=data, headers=headers)
-    print(response.text)
+    response.raise_for_status()
+    return response.json()
+
+
+def list_subscriptions(
+    session: Session, url: str, authorization: str, entity_id: str
+) -> dict:
+    """
+    List subscriptions entitled to the customer.
+
+    :param session: requests.Session object
+    :param authorization: The authorization bearer token
+    :param entity_id: The entity ID of the currently selected subscription
+    :return: The response
+    """
+    headers = {
+        "X-Correlation-Id": str(uuid4()),
+        "Accept-Language": "hu",
+        "Authorization": authorization,
+        "Entity-Id": entity_id,
+    }
+    response = session.get(url, headers=headers)
     response.raise_for_status()
     return response.json()

@@ -593,3 +593,15 @@ msgstr ""
 msgctxt "#30140"
 msgid "Enter a new name for this device"
 msgstr ""
+
+msgctxt "#30141"
+msgid "Fetching the active subscriptions..."
+msgstr ""
+
+msgctxt "#30142"
+msgid "No TV subscription found!"
+msgstr ""
+
+msgctxt "#30143"
+msgid "We have found multiple TV subscriptions. Please select one."
+msgstr ""

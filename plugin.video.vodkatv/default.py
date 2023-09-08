@@ -171,6 +171,8 @@ def authenticate(session: Session, addon_from_thread: xbmcaddon.Addon = None) ->
                 raise e
     # fresh login
     else:
+        # reset MyVodka expiry
+        xbmcgui.Window(HOME_ID).setProperty("kodi.vodka.myvodka_expiry", "")
         prog_dialog.update(50, addon_local.getLocalizedString(30022))
         pkey, vodka_config = login.get_config(
             session, addon_local.getSetting("devicekey")
@@ -1312,7 +1314,8 @@ def vodka_authenticate() -> None:
     ):
         dialog = xbmcgui.Dialog()
         dialog.ok(addon_name, addon.getLocalizedString(30135))
-        return addon.openSettings()
+        addon.openSettings()
+        exit()
 
     # check if we have a token and if it's still valid
     expiry = xbmcgui.Window(HOME_ID).getProperty("kodi.vodka.myvodka_expiry")
@@ -1333,7 +1336,7 @@ def vodka_authenticate() -> None:
         except myvodka_login.LoginException as e:
             dialog = xbmcgui.Dialog()
             dialog.ok(addon_name, addon.getLocalizedString(30025).format(message=e))
-            return
+            exit()
         access_token = response["access_token"]
         dialog.update(50, addon.getLocalizedString(30138))
         response = myvodka_login.publicapi_login(
@@ -1345,16 +1348,55 @@ def vodka_authenticate() -> None:
         access_token = response["access_token"]
         expiry = response["issued_at"] + response["expires_in"]
         individual_id = response.get("id_profile_svc_response", {}).get(
+            "selectedAccount", {}
+        )["id"]
+        subscription_id = response.get("id_profile_svc_response", {}).get(
             "selectedSubscription", {}
         )["id"]
+        dialog.update(75, addon.getLocalizedString(30141))
+        response = myvodka_login.list_subscriptions(
+            session,
+            f"{public_api_host}/mva-api/customerAPI/v1/customerAccount/{individual_id}/subscription?flow=subscriptionSwitch",
+            f"Bearer {access_token}",
+            subscription_id,  # default subscription goes here
+        )
+        subscriptions = response.get("subscriptions", [])
+        # filter to type: TV
+        subscriptions = [
+            subscription
+            for subscription in subscriptions
+            if subscription["type"] == "TV"
+        ]
+        if not subscriptions:
+            dialog.close()
+            dialog = xbmcgui.Dialog()
+            dialog.ok(addon_name, addon.getLocalizedString(30142))
+            exit()
+        dialog.close()
+        if len(subscriptions) < 1:
+            # show picker dialog
+            dialog = xbmcgui.Dialog()
+            subscription_names = [
+                f"{subscription['name']} ({subscription['longAddress']})"
+                for subscription in subscriptions
+            ]
+            index = dialog.select(
+                addon.getLocalizedString(30143),
+                subscription_names,
+            )
+            if index == -1:
+                exit()
+        else:
+            index = 0
+        subscription = subscriptions[index]
+        subscription_id = subscription["id"]
         xbmcgui.Window(HOME_ID).setProperty("kodi.vodka.myvodka_expiry", str(expiry))
         xbmcgui.Window(HOME_ID).setProperty(
             "kodi.vodka.myvodka_access_token", access_token
         )
         xbmcgui.Window(HOME_ID).setProperty(
-            "kodi.vodka.myvodka_individual_id", individual_id
+            "kodi.vodka.myvodka_individual_id", subscription_id
         )
-        dialog.close()
     session.close()
 
 
