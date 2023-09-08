@@ -265,6 +265,70 @@
                 </setting>
             </group>
         </category>
+        <category id="devicelist" label="30128">
+            <group id="10" label="30128">
+                <setting id="oxauthurl" label="30129" type="string">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30129</heading>
+                    </control>
+                </setting>
+                <setting id="oxauthclientid" label="30130" type="string">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30130</heading>
+                    </control>
+                </setting>
+                <setting id="oxauthclientsecret" label="30131" type="string">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30131</heading>
+                    </control>
+                </setting>
+                <setting id="oxauthauthorization" label="30132" type="string">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30132</heading>
+                    </control>
+                </setting>
+                <setting id="publicapihost" label="30133" type="string">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30133</heading>
+                    </control>
+                </setting>
+                <setting id="publicapiclientid" label="30134" type="string">
+                    <level>0</level>
+                    <default></default>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30134</heading>
+                    </control>
+                </setting>
+            </group>
+        </category>
         <category id="advanced" label="30006">
             <group id="2" label="30007">
                 <setting id="useragent" label="30008" type="string">

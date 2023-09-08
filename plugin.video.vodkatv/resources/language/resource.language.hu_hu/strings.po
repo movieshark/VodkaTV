@@ -185,8 +185,8 @@ msgid "State"
 msgstr "Állapot"
 
 msgctxt "#30043"
-msgid "Device List"
-msgstr "Eszközök listája"
+msgid "Device List (Kaltura)"
+msgstr "Eszközök listája (Kaltura)"
 
 msgctxt "#30044"
 msgid "Are you absolutely sure you want to delete this device?"
@@ -559,3 +559,59 @@ msgstr "Semmi (gyorsabb)"
 msgctxt "#30127"
 msgid "Show all channels"
 msgstr "Minden csatorna mutatása"
+
+msgctxt "#30128"
+msgid "Device list (MyVodka)"
+msgstr "Eszközök listája (MyVodka)"
+
+msgctxt "#30129"
+msgid "OXAuth URL"
+msgstr ""
+
+msgctxt "#30130"
+msgid "OXAuth Client ID"
+msgstr "OXAuth Kliens Azonosító"
+
+msgctxt "#30131"
+msgid "OXAuth Client Secret"
+msgstr "OXAuth Kliens Kulcs"
+
+msgctxt "#30132"
+msgid "OXAuth Authorization Header"
+msgstr "OXAuth Hitelesítési Fejléc"
+
+msgctxt "#30133"
+msgid "Public API Hostname"
+msgstr "Publikus API Hosztnév"
+
+msgctxt "#30134"
+msgid "Public API Client ID"
+msgstr "Publikus API Kliens Azonosító"
+
+msgctxt "#30135"
+msgid "Certain fields are missing from settings for this menu to work."
+" Unfortunately, we cannot embed API tokens and URLs into the add-on due to legal reasons."
+" You must provide them manually."
+msgstr "Bizonnyos beállítások hiányoznak ahhoz, hogy ez a menü működjön."
+" Sajnos jogi okok miatt nem tudom beágyazni az API tokeneket és URL-eket a kiegészítőbe."
+" Kézzel kell megadnod őket."
+
+msgctxt "#30136"
+msgid "Rename device"
+msgstr "Eszköz átnevezése"
+
+msgctxt "#30137"
+msgid "Logging into MyVodka..."
+msgstr "Bejelentkezés a MyVodka-ba..."
+
+msgctxt "#30138"
+msgid "Logging into MyVodka public API..."
+msgstr "Bejelentkezés a MyVodka publikus API-ba..."
+
+msgctxt "#30139"
+msgid "Device renamed successfully!"
+msgstr "Eszköz sikeresen átnevezve!"
+
+msgctxt "#30140"
+msgid "Enter a new name for this device"
+msgstr "Add meg az eszköz új nevét"

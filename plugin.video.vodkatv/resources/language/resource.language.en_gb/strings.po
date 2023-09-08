@@ -185,7 +185,7 @@ msgid "State"
 msgstr ""
 
 msgctxt "#30043"
-msgid "Device List"
+msgid "Device List (Kaltura)"
 msgstr ""
 
 msgctxt "#30044"
@@ -538,4 +538,58 @@ msgstr ""
 
 msgctxt "#30127"
 msgid "Show all channels"
+msgstr ""
+
+msgctxt "#30128"
+msgid "Device list (MyVodka)"
+msgstr ""
+
+msgctxt "#30129"
+msgid "OXAuth URL"
+msgstr ""
+
+msgctxt "#30130"
+msgid "OXAuth Client ID"
+msgstr ""
+
+msgctxt "#30131"
+msgid "OXAuth Client Secret"
+msgstr ""
+
+msgctxt "#30132"
+msgid "OXAuth Authorization Header"
+msgstr ""
+
+msgctxt "#30133"
+msgid "Public API Hostname"
+msgstr ""
+
+msgctxt "#30134"
+msgid "Public API Client ID"
+msgstr ""
+
+msgctxt "#30135"
+msgid "Certain fields are missing from settings for this menu to work."
+" Unfortunately, we cannot embed API tokens and URLs into the add-on due to legal reasons."
+" You must provide them manually."
+msgstr ""
+
+msgctxt "#30136"
+msgid "Rename device"
+msgstr ""
+
+msgctxt "#30137"
+msgid "Logging into MyVodka..."
+msgstr ""
+
+msgctxt "#30138"
+msgid "Logging into MyVodka public API..."
+msgstr ""
+
+msgctxt "#30139"
+msgid "Device renamed successfully!"
+msgstr ""
+
+msgctxt "#30140"
+msgid "Enter a new name for this device"
 msgstr ""
