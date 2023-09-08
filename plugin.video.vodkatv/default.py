@@ -676,19 +676,16 @@ def _gen_mgr_params(playback_obj: list, asset_type: str) -> str:
     :return: parameters for playback manager
     """
     try:
-        params = {}
+        params = {
+            "id": playback_obj["id"],
+            "assetId": playback_obj["assetId"],
+        }
         if asset_type == "media":
             params["assetType"] = "MEDIA"
-            params["id"] = playback_obj["id"]
-            params["assetId"] = playback_obj["assetId"]
         elif asset_type == "epg":
             params["assetType"] = "CATCHUP"
-            params["id"] = playback_obj["id"]
-            params["assetId"] = playback_obj["assetId"]
         elif asset_type == "recording":
             params["assetType"] = "NPVR"
-            params["id"] = playback_obj["id"]
-            params["assetId"] = playback_obj["assetId"]
     except (KeyError, IndexError):
         return ""
     return urlencode(params)
