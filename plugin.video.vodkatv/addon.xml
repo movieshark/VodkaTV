@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.vodkatv" name="VodkaTV" version="0.8.2" provider-name="Octo Potato">
+<addon id="plugin.video.vodkatv" name="VodkaTV" version="0.8.3" provider-name="Octo Potato">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.12.4"/>
@@ -16,7 +16,7 @@
         <description lang="en">Unofficial Vodafone TV Hungary Kodi Addon</description>
         <disclaimer lang="en">This addon is not created or maintained by Vodafone Hungary</disclaimer>
         <summary lang="hu">VodkaTV</summary>
-        <description lang="hu">[B]Vod[/B] [B]K[/B]orlátlanul, OTT ahol [B]A[/B]karod.[CR][CR]Nyomokban alkoholt tartalmazhat. Fogyasztása csak felnőtt felügyelete mellett ajánlott.</description>
+        <description lang="hu">k[B]Vod[/B] [B]K[/B]orlátlanul, OTT ahol [B]A[/B]karod.[CR][CR]Nyomokban alkoholt tartalmazhat. Fogyasztása csak felnőtt felügyelete mellett ajánlott.</description>
         <disclaimer lang="hu">Ez a kiegészítő nem hivatalos, és nem a Vodafone Magyarország készítette</disclaimer>
         <platform>all</platform>
         <language>hu en</language>
