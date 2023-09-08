@@ -1022,7 +1022,7 @@ def get_recordings(session: Session, page_num: int) -> None:
             media_file = media_files[0]
             epg_ids[epg_id] = [str(media_file["id"]), media_file["type"]]
 
-            xbmcgui.Window(HOME_ID).setProperty("kodi.vodka.channels", dumps(epg_ids))
+        xbmcgui.Window(HOME_ID).setProperty("kodi.vodka.channels", dumps(epg_ids))
     page_num = int(page_num)
     recordings = media_list.get_recordings(
         session,
