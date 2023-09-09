@@ -627,3 +627,7 @@ msgstr "Nem található TV előfizetés!"
 msgctxt "#30143"
 msgid "We have found multiple TV subscriptions. Please select one."
 msgstr "Több TV előfizetést találtunk. Kérlek válassz egyet."
+
+msgctxt "#30144"
+msgid "Use custom DOH server"
+msgstr "Egyéni DOH szerver használata"

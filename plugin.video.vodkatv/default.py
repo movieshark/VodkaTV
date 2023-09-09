@@ -777,21 +777,32 @@ def play(
     # construct 'trailer' parameters for playback manager
     trailer_params = _gen_mgr_params(playback_obj, asset_type)
     manifest_url = urlparse(playback_obj.get("url"))
-    # extract host from domain
-    hostname = manifest_url.hostname
-    ip = resolve_domain(addon.getSetting("dohaddress"), hostname)
-    if not ip:
-        xbmcgui.Dialog().ok(
-            addon_name,
-            addon.getLocalizedString(30035).format(url=manifest_url.geturl()),
+    headers = {}
+    if addon.getSettingBool("usedoh"):
+        # extract host from domain
+        hostname = manifest_url.hostname
+        ip = resolve_domain(addon.getSetting("dohaddress"), hostname)
+        if not ip:
+            xbmcgui.Dialog().ok(
+                addon_name,
+                addon.getLocalizedString(30035).format(url=manifest_url.geturl()),
+            )
+            return
+        # replace hostname with IP and specify port 80
+        manifest_url = manifest_url._replace(netloc=f"{ip}:80")
+        # replace https with http
+        manifest_url = manifest_url._replace(scheme="http")
+        headers["Host"] = hostname
+    else:
+        # replace https with http
+        manifest_url = manifest_url._replace(scheme="http")
+        # replace port 443 with 80
+        manifest_url = manifest_url._replace(
+            netloc=manifest_url.netloc.replace("443", "80")
         )
-        return
-    # replace hostname with IP and specify port 80
-    manifest_url = manifest_url._replace(netloc=f"{ip}:80")
-    # replace https with http
-    manifest_url = manifest_url._replace(scheme="http")
+    # handle redirect as Kodi's player can't
     response = session.head(
-        manifest_url.geturl(), allow_redirects=False, headers={"Host": hostname}
+        manifest_url.geturl(), allow_redirects=False, headers=headers
     )
     manifest_url = response.headers.get("Location")
     drm_system = addon.getSettingInt("drmsystem")
@@ -913,21 +924,32 @@ def play_recording(session: Session, recording_id: int, media_id: list) -> None:
     }
     trailer_params = _gen_mgr_params(trailer_data, "recording")
     manifest_url = urlparse(main_url)
-    # extract host from domain
-    hostname = manifest_url.hostname
-    ip = resolve_domain(addon.getSetting("dohaddress"), hostname)
-    if not ip:
-        xbmcgui.Dialog().ok(
-            addon_name,
-            addon.getLocalizedString(30035).format(url=manifest_url.geturl()),
+    headers = {}
+    if addon.getSettingBool("usedoh"):
+        # extract host from domain
+        hostname = manifest_url.hostname
+        ip = resolve_domain(addon.getSetting("dohaddress"), hostname)
+        if not ip:
+            xbmcgui.Dialog().ok(
+                addon_name,
+                addon.getLocalizedString(30035).format(url=manifest_url.geturl()),
+            )
+            return
+        # replace hostname with IP and specify port 80
+        manifest_url = manifest_url._replace(netloc=f"{ip}:80")
+        # replace https with http
+        manifest_url = manifest_url._replace(scheme="http")
+        headers["Host"] = hostname
+    else:
+        # replace https with http
+        manifest_url = manifest_url._replace(scheme="http")
+        # replace port 443 with 80
+        manifest_url = manifest_url._replace(
+            netloc=manifest_url.netloc.replace("443", "80")
         )
-        return
-    # replace hostname with IP and specify port 80
-    manifest_url = manifest_url._replace(netloc=f"{ip}:80")
-    # replace https with http
-    manifest_url = manifest_url._replace(scheme="http")
+    # handle redirect as Kodi's player can't
     response = session.head(
-        manifest_url.geturl(), allow_redirects=False, headers={"Host": hostname}
+        manifest_url.geturl(), allow_redirects=False, headers=headers
     )
     manifest_url = response.headers.get("Location")
     drm_system = addon.getSettingInt("drmsystem")

@@ -605,3 +605,8 @@ msgstr ""
 msgctxt "#30143"
 msgid "We have found multiple TV subscriptions. Please select one."
 msgstr ""
+
+msgctxt "#30144"
+msgid "Use custom DOH server"
+msgstr ""
+

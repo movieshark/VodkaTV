@@ -68,9 +68,17 @@
                 </setting>
             </group>
             <group id="9" label="30117">
+                <setting id="usedoh" type="boolean" label="30144" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="dohaddress" type="string" label="30118" help="">
                     <level>0</level>
                     <default>https://cloudflare-dns.com/dns-query</default>
+                    <dependencies>
+                        <dependency type="enable" setting="usedoh">true</dependency>
+                    </dependencies>
                     <constraints>
                         <options>
                             <option label="30119">https://cloudflare-dns.com/dns-query</option>
