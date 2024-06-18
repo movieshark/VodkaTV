@@ -1366,26 +1366,28 @@ def vodka_authenticate() -> None:
         )
         access_token = response["access_token"]
         expiry = response["issued_at"] + response["expires_in"]
-        individual_id = response.get("id_profile_svc_response", {}).get(
-            "selectedAccount", {}
-        )["id"]
         subscription_id = response.get("id_profile_svc_response", {}).get(
             "selectedSubscription", {}
         )["id"]
         dialog.update(75, addon.getLocalizedString(30141))
         response = myvodka_login.list_subscriptions(
             session,
-            f"{public_api_host}/mva-api/customerAPI/v1/customerAccount/{individual_id}/subscription?flow=subscriptionSwitch",
+            f"{public_api_host}/mva-api/customerAPI/v1/accountAndSubscription",
             f"Bearer {access_token}",
             subscription_id,  # default subscription goes here
         )
-        subscriptions = response.get("subscriptions", [])
-        # filter to type: TV
-        subscriptions = [
-            subscription
-            for subscription in subscriptions
-            if subscription["type"] == "TV"
-        ]
+        services = response.get("myServices", [])
+        subscriptions = []
+        for service in services:
+            subscriptions = service.get("subscriptions", [])
+            # filter to type: TV
+            subscriptions = [
+                subscription
+                for subscription in subscriptions
+                if subscription["type"] == "TV"
+            ]
+            if subscriptions:
+                break
         if not subscriptions:
             dialog.close()
             dialog = xbmcgui.Dialog()
