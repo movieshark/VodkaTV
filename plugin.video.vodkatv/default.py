@@ -1298,7 +1298,7 @@ def prepare_myvodka_session() -> Session:
     session.headers.update(
         {
             "Accept-Encoding": "gzip",
-            "User-Agent": "okhttp/4.10.0",
+            "User-Agent": "okhttp/4.11.0",
             "Connection": "Keep-Alive",
         }
     )
