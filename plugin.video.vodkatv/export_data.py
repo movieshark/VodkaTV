@@ -1,7 +1,6 @@
 import threading
-from datetime import datetime, timezone
-from time import mktime, strptime, time
-from typing import Tuple
+from datetime import datetime, UTC
+from time import time
 from urllib.parse import urlencode
 
 import xbmc
@@ -20,7 +19,7 @@ from resources.lib.utils import voda_to_epg_time
 from resources.lib.vodka import media_list, static
 
 
-def get_path(addon: xbmcaddon.Addon(), is_epg: bool = False) -> str:
+def get_path(addon: xbmcaddon.Addon, is_epg: bool = False) -> str:
     """
     Check if the channel and epg path exists
 
@@ -44,7 +43,7 @@ def get_path(addon: xbmcaddon.Addon(), is_epg: bool = False) -> str:
     return xbmcvfs.translatePath(f"{path}/{name}")
 
 
-def export_channel_list(addon: xbmcaddon.Addon(), _session: Session) -> None:
+def export_channel_list(addon: xbmcaddon.Addon, _session: Session) -> None:
     """
     Export channel list to an m3u file
 
@@ -446,10 +445,9 @@ def get_utc_offset() -> int:
 
     :return: UTC offset in hours
     """
-    now = datetime.now()
-    utc_now = datetime.utcnow()
-    utc_offset = now - utc_now
-    return round(utc_offset.total_seconds() / 3600)
+    now = datetime.now().astimezone()
+    utc_offset = now.utcoffset().total_seconds() / 3600
+    return round(utc_offset)
 
 
 class EPGUpdaterThread(threading.Thread):
