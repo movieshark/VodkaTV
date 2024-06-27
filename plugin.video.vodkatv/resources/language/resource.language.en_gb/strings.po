@@ -153,7 +153,7 @@ msgid "Tenant ID"
 msgstr ""
 
 msgctxt "#30035"
-msgid "The Cloudflare DNS resolver didn't return a valid IP address for: {url}."
+msgid "The built-in DoH resolver didn't return a valid IP address for: {url}."
 msgstr ""
 
 msgctxt "#30036"
@@ -610,3 +610,10 @@ msgctxt "#30144"
 msgid "Use custom DOH server"
 msgstr ""
 
+msgctxt "#30145"
+msgid "Use MovieShark API as a DNS fallback"
+msgstr ""
+
+msgctxt "#30146"
+msgid "MAPI didn't return a valid IP address for: {url}."
+msgstr ""

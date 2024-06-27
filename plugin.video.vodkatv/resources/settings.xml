@@ -73,6 +73,11 @@
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
+                <setting id="usemapifallbackdns" type="boolean" label="30145" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="dohaddress" type="string" label="30118" help="">
                     <level>0</level>
                     <default>https://cloudflare-dns.com/dns-query</default>

@@ -153,8 +153,8 @@ msgid "Tenant ID"
 msgstr ""
 
 msgctxt "#30035"
-msgid "The Cloudflare DNS resolver didn't return a valid IP address for: {url}."
-msgstr "A Cloudflare DNS nem adott vissza érvényes IP címet ehhez: {url}."
+msgid "The built-in DoH resolver didn't return a valid IP address for: {url}."
+msgstr "A beépített DoH resolver nem adott vissza érvényes IP címet ehhez: {url}."
 
 msgctxt "#30036"
 msgid "Refresh"
@@ -631,3 +631,11 @@ msgstr "Több TV előfizetést találtunk. Kérlek válassz egyet."
 msgctxt "#30144"
 msgid "Use custom DOH server"
 msgstr "Egyéni DOH szerver használata"
+
+msgctxt "#30145"
+msgid "Use MovieShark API as a DNS fallback"
+msgstr "A MovieShark API használata backup DNS-ként"
+
+msgctxt "#30146"
+msgid "MAPI didn't return a valid IP address for: {url}."
+msgstr "A MAPI nem adott vissza érvényes IP címet ehhez: {url}."
