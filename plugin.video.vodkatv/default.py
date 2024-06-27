@@ -790,6 +790,21 @@ def play(
     # construct 'trailer' parameters for playback manager
     trailer_params = _gen_mgr_params(playback_obj, asset_type)
     manifest_url = urlparse(playback_obj.get("url"))
+    handle_playback(manifest_url, nv_authorizations, trailer_params)
+
+
+def handle_playback(
+    manifest_url: str, nv_authorizations: str, trailer_params: str
+) -> None:
+    """
+    Helper function that handles the playback of a media or recording.
+
+    :param manifest_url: The manifest URL.
+    :param nv_authorizations: The NV authorizations token.
+    :param trailer_params: The trailer parameters.
+    :return: None
+    """
+
     headers = {}
     if addon.getSettingBool("usedoh"):
         # extract host from domain
@@ -991,129 +1006,7 @@ def play_recording(session: Session, recording_id: int, media_id: list) -> None:
     }
     trailer_params = _gen_mgr_params(trailer_data, "recording")
     manifest_url = urlparse(main_url)
-    headers = {}
-    if addon.getSettingBool("usedoh"):
-        # extract host from domain
-        hostname = manifest_url.hostname
-        try:
-            ip = resolve_domain(addon.getSetting("dohaddress"), hostname)
-        except:
-            # we handle the IP resolving error below
-            pass
-        if not ip:
-            if addon.getSettingBool("usemapifallbackdns"):
-                try:
-                    user_agent = addon_name + " v" + addon.getAddonInfo("version")
-                    ip = get_vtv_ip_from_mapi(user_agent)
-                except:
-                    xbmcgui.Dialog().ok(
-                        addon_name,
-                        addon.getLocalizedString(30146).format(url=manifest_url.geturl()),
-                    )
-                    return
-            xbmcgui.Dialog().ok(
-                addon_name,
-                addon.getLocalizedString(30035).format(url=manifest_url.geturl()),
-            )
-            return
-        # replace hostname with IP and specify port 80
-        manifest_url = manifest_url._replace(netloc=f"{ip}:80")
-        # replace https with http
-        manifest_url = manifest_url._replace(scheme="http")
-        headers["Host"] = hostname
-    else:
-        # replace https with http
-        manifest_url = manifest_url._replace(scheme="http")
-        # replace port 443 with 80
-        manifest_url = manifest_url._replace(
-            netloc=manifest_url.netloc.replace("443", "80")
-        )
-    # handle redirect as Kodi's player can't
-    try:
-        response = session.head(
-            manifest_url.geturl(), allow_redirects=False, headers=headers
-        )
-    except ConnectionError as e:
-        original_exception = e
-        while not isinstance(original_exception, gaierror) and (
-            original_exception.__cause__ or original_exception.__context__
-        ):
-            original_exception = (
-                original_exception.__cause__ or original_exception.__context__
-            )
-        # if it's a DNS resolution error, we try to resolve using MAPI
-        if (
-            addon.getSettingBool("usemapifallbackdns")
-            and isinstance(original_exception, gaierror)
-            and original_exception.errno == -2
-        ):
-            try:
-                user_agent = addon_name + " v" + addon.getAddonInfo("version")
-                ip = get_vtv_ip_from_mapi(user_agent)
-            except Exception as e:
-                xbmcgui.Dialog().ok(
-                    addon_name,
-                    addon.getLocalizedString(30146).format(url=manifest_url.geturl()),
-                )
-                return
-            headers["Host"] = manifest_url.hostname
-            manifest_url = manifest_url._replace(netloc=f"{ip}:80")
-            try:
-                response = session.head(
-                    manifest_url.geturl(), allow_redirects=False, headers=headers
-                )
-            except Exception as e:
-                xbmcgui.Dialog().ok(
-                    addon_name,
-                    addon.getLocalizedString(30146).format(url=manifest_url.geturl()),
-                )
-                return
-        else:
-            raise e
-    manifest_url = response.headers.get("Location")
-    drm_system = addon.getSettingInt("drmsystem")
-    # construct playback item
-    is_helper = inputstreamhelper.Helper("mpd", drm="com.widevine.alpha")
-    play_item = xbmcgui.ListItem(path=manifest_url)
-    play_item.setContentLookup(False)
-    play_item.setInfo("video", {"trailer": argv[0] + "?" + trailer_params})
-    play_item.setMimeType("application/dash+xml")
-    play_item.setProperty("inputstream", is_helper.inputstream_addon)
-    play_item.setProperty("inputstream.adaptive.manifest_type", "mpd")
-    play_item.setProperty(
-        "inputstream.adaptive.manifest_headers",
-        urlencode({"User-Agent": addon.getSetting("useragent")}),
-    )
-    if drm_system == 0:  # Widevine
-        if not is_helper.check_inputstream():
-            xbmcgui.Dialog().ok(
-                addon_name,
-                addon.getLocalizedString(30050),
-            )
-            return
-        license_headers = {
-            "User-Agent": addon.getSetting("useragent"),
-            "Content-Type": "application/octet-stream",  # NOTE: important
-            "nv-authorizations": drm_token,
-        }
-        license_url = f"{addon.getSetting('licenseurlbase')}/{addon.getSetting('tenantid')}/wvls/contentlicenseservice/v1/licenses|{urlencode(license_headers)}|R{{SSM}}|"
-        play_item.setProperty("inputstream.adaptive.license_type", "com.widevine.alpha")
-    elif drm_system == 1:  # PlayReady
-        license_headers = {
-            "User-Agent": addon.getSetting("useragent"),
-            "Content-Type": "text/xml",
-            "SOAPAction": "http://schemas.microsoft.com/DRM/2007/03/protocols/AcquireLicense",
-            "nv-authorizations": drm_token,
-        }
-        license_url = f"{addon.getSetting('licenseurlbase')}/{addon.getSetting('tenantid')}/prls/contentlicenseservice/v1/licenses|{urlencode(license_headers)}|R{{SSM}}|"
-        play_item.setProperty(
-            "inputstream.adaptive.license_type", "com.microsoft.playready"
-        )
-    play_item.setProperty(
-        "inputstream.adaptive.license_key",
-        license_url,
-    )
-    xbmcplugin.setResolvedUrl(int(argv[1]), True, listitem=play_item)
+    handle_playback(manifest_url, drm_token, trailer_params)
 
 
 def get_recordings(session: Session, page_num: int) -> None:
