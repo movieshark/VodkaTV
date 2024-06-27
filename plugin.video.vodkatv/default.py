@@ -708,7 +708,11 @@ def get_tag(tags: list, key: str) -> str:
 
 
 def play(
-    session: Session, media_id: int, asset_file_id: int, asset_type: str = "media"
+    session: Session,
+    media_id: int,
+    asset_file_id: int,
+    asset_type: str = "media",
+    tries: int = 0,
 ) -> None:
     """
     Fetches the playback object and attempts to start the playback
@@ -730,7 +734,15 @@ def play(
         )
     except PlaybackException as e:
         if e.code == "1003":  # Device not in household
-            try_register_device(session)
+            if tries < 2:
+                try_register_device(session)
+                return play(session, media_id, asset_file_id, asset_type, tries + 1)
+            else:
+                dialog = xbmcgui.Dialog()
+                dialog.ok(
+                    addon_name,
+                    addon.getLocalizedString(30147),
+                )
             return
         elif e.code == "3037":  # catchup buffer limit reached
             dialog = xbmcgui.Dialog()
@@ -824,11 +836,11 @@ def play(
         )
     except ConnectionError as e:
         original_exception = e
-        while original_exception.__cause__ or original_exception.__context__:
+        while not isinstance(original_exception, gaierror) and (
+            original_exception.__cause__ or original_exception.__context__
+        ):
             original_exception = (
-                original_exception.__cause__
-                if original_exception.__cause__
-                else original_exception.__context__
+                original_exception.__cause__ or original_exception.__context__
             )
         # if it's a DNS resolution error, we try to resolve using MAPI
         if (
@@ -852,7 +864,6 @@ def play(
                     manifest_url.geturl(), allow_redirects=False, headers=headers
                 )
             except Exception as e:
-                xbmc.log(f"[{addon_name}] Error: {e}", xbmc.LOGERROR)
                 xbmcgui.Dialog().ok(
                     addon_name,
                     addon.getLocalizedString(30146).format(url=manifest_url.geturl()),
@@ -984,8 +995,22 @@ def play_recording(session: Session, recording_id: int, media_id: list) -> None:
     if addon.getSettingBool("usedoh"):
         # extract host from domain
         hostname = manifest_url.hostname
-        ip = resolve_domain(addon.getSetting("dohaddress"), hostname)
+        try:
+            ip = resolve_domain(addon.getSetting("dohaddress"), hostname)
+        except:
+            # we handle the IP resolving error below
+            pass
         if not ip:
+            if addon.getSettingBool("usemapifallbackdns"):
+                try:
+                    user_agent = addon_name + " v" + addon.getAddonInfo("version")
+                    ip = get_vtv_ip_from_mapi(user_agent)
+                except:
+                    xbmcgui.Dialog().ok(
+                        addon_name,
+                        addon.getLocalizedString(30146).format(url=manifest_url.geturl()),
+                    )
+                    return
             xbmcgui.Dialog().ok(
                 addon_name,
                 addon.getLocalizedString(30035).format(url=manifest_url.geturl()),
@@ -1004,9 +1029,47 @@ def play_recording(session: Session, recording_id: int, media_id: list) -> None:
             netloc=manifest_url.netloc.replace("443", "80")
         )
     # handle redirect as Kodi's player can't
-    response = session.head(
-        manifest_url.geturl(), allow_redirects=False, headers=headers
-    )
+    try:
+        response = session.head(
+            manifest_url.geturl(), allow_redirects=False, headers=headers
+        )
+    except ConnectionError as e:
+        original_exception = e
+        while not isinstance(original_exception, gaierror) and (
+            original_exception.__cause__ or original_exception.__context__
+        ):
+            original_exception = (
+                original_exception.__cause__ or original_exception.__context__
+            )
+        # if it's a DNS resolution error, we try to resolve using MAPI
+        if (
+            addon.getSettingBool("usemapifallbackdns")
+            and isinstance(original_exception, gaierror)
+            and original_exception.errno == -2
+        ):
+            try:
+                user_agent = addon_name + " v" + addon.getAddonInfo("version")
+                ip = get_vtv_ip_from_mapi(user_agent)
+            except Exception as e:
+                xbmcgui.Dialog().ok(
+                    addon_name,
+                    addon.getLocalizedString(30146).format(url=manifest_url.geturl()),
+                )
+                return
+            headers["Host"] = manifest_url.hostname
+            manifest_url = manifest_url._replace(netloc=f"{ip}:80")
+            try:
+                response = session.head(
+                    manifest_url.geturl(), allow_redirects=False, headers=headers
+                )
+            except Exception as e:
+                xbmcgui.Dialog().ok(
+                    addon_name,
+                    addon.getLocalizedString(30146).format(url=manifest_url.geturl()),
+                )
+                return
+        else:
+            raise e
     manifest_url = response.headers.get("Location")
     drm_system = addon.getSettingInt("drmsystem")
     # construct playback item

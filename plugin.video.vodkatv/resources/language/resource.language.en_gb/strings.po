@@ -617,3 +617,7 @@ msgstr ""
 msgctxt "#30146"
 msgid "MAPI didn't return a valid IP address for: {url}."
 msgstr ""
+
+msgctxt "#30147"
+msgid "The device isn't in the household and registration failed 3 times. It's likely a provider issue. Giving up."
+msgstr ""

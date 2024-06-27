@@ -639,3 +639,7 @@ msgstr "A MovieShark API használata backup DNS-ként"
 msgctxt "#30146"
 msgid "MAPI didn't return a valid IP address for: {url}."
 msgstr "A MAPI nem adott vissza érvényes IP címet ehhez: {url}."
+
+msgctxt "#30147"
+msgid "The device isn't in the household and registration failed 3 times. It's likely a provider issue. Giving up."
+msgstr "Az eszköz nincs a háztartásban, és a regisztráció 3-szor sikertelen volt. Elképzelhetően szolgáltatói hiba. A kiegészítő feladja."
