@@ -1,5 +1,5 @@
 import threading
-from datetime import datetime, UTC
+from datetime import datetime
 from time import time
 from urllib.parse import urlencode
 
