@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.vodkatv" name="VodkaTV" version="0.8.7" provider-name="Octo Potato">
+<addon id="plugin.video.vodkatv" name="VodkaTV" version="0.8.8" provider-name="Octo Potato">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.12.4"/>
@@ -24,6 +24,9 @@
         <forum>https://prohardver.hu/tema/kodi_xbmc_kiegeszito_magyar_nyelvu_online_filmekhe/hsz_1-50.html</forum>
         <website></website>
         <email></email>
+        <deprecated>A Vodafone TV szolgáltatás megszűnt, helyette a One TV platformhoz új addon fejlesztése szükséges a jövőben.</deprecated>
+        <lifecyclestate type="deprecated" lang="hu">A Vodafone TV szolgáltatás megszűnt, helyette a One TV platformhoz új addon fejlesztése szükséges a jövőben.</lifecyclestate>
+        <lifecyclestate type="deprecated" lang="en">The Vodafone TV service has been discontinued, a new addon development is needed for the One TV platform in the future.</lifecyclestate>
         <source>https://github.com/movieshark/VodkaTV</source>
         <assets>
             <icon>resources/media/logo.jpg</icon>
